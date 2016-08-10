@@ -8,7 +8,13 @@ MANDIR:=${PREFIX}/share/man
 
 IMGDIR:=build/img
 SRCS:=$(wildcard ./src/os/linux/*.c)
-SRCS+=$(wildcard ./src/*.c)
+SRCS+=\
+      ./src/uzmtp.c \
+      ./src/uzmtp_msg.c \
+      ./src/uzmtp_dealer.c \
+      ./src/main.c
+
+# SRCS+=$(wildcard ./src/*.c)
 
 OBJS:=${SRCS:.c=.o}
 RELOBJS:=${SRCS:.c=.lo}
@@ -20,9 +26,9 @@ all: $(IMGDIR)/libuzmtp.so $(IMGDIR)/libuzmtp
 
 ${IMGDIR}/libuzmtp.so: ${RELOBJS}
 	@echo "LINK $@"
-	@${CC} -shared -fPIC ${RELOBJS} ${LDFLAGS} -o ${IMGDIR}/libuzmtp.so
+	@${CC} -shared ${RELOBJS} ${LDFLAGS} -o ${IMGDIR}/libuzmtp.so
 
-${IMGDIR}/libuzmtp: ${OBJS}
+${IMGDIR}/libuzmtp: ${OBJS} src/main.o
 	@echo "LINK $@"
 	@${CC} ${OBJS} ${LDFLAGS} -o ${IMGDIR}/libuzmtp
 

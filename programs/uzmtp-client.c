@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 	return -1;
     }
 
-    // Allocate dealer context.
+    // Allocate dealer socket ctx.
     UzmtpDealer *d = uzmtp_dealer_new();
     if (!d) return die_with_error(-1, "memory");
 
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     if (uzmtp_dealer_send(d, msg)) {
 	uzmtp_dealer_free(&d);
 	uzmtp_msg_destroy(&msg);
-	return die_with_error(-3, "network error!");
+	return die_with_error(-4, "network error!");
     }
 
     // TODO - wait for response!
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 }
 int print_usage() {
     printf("%s\n",
-	   "USAGE: shepard-client tcp://x.x.x.x:y '{\"hello\":\"world\"}'");
+	   "USAGE: uzmtp-client tcp://x.x.x.x:y '{\"hello\":\"world\"}'");
     return 0;
 }
 int die_with_error(int code, char *err) {
