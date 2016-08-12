@@ -12,8 +12,13 @@ extern "C" {
 #include "os/net.h"
 #include "uzmtp_msg.h"
 
+typedef int (*tx_fn)(_UzmtpSocket *, const unsigned char *, size_t);
+typedef int (*rx_fn)(_UzmtpSocket *, unsigned char *, size_t);
+
 typedef struct {
     _UzmtpSocket conn;
+    tx_fn tx; /*!< tls/net tx method */
+    rx_fn rx; /*!< tls/net rx method */
 } _UzmtpDealer;
 
 // Public

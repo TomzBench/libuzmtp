@@ -22,6 +22,8 @@ static const struct uzmtp_greeting greeting = {
 _UzmtpDealer *uzmtp_dealer_new() {
     _UzmtpDealer *d = uzmtp_malloc(sizeof(_UzmtpDealer));
     memset(d, 0, sizeof(_UzmtpDealer));
+    d->tx = uzmtp_net_send;
+    d->rx = uzmtp_net_recv;
     return d;
 }
 
@@ -55,11 +57,10 @@ int uzmtp_dealer_connect(_UzmtpDealer *self, const char *host, int port) {
     if (uzmtp_net_socket(&self->conn)) return -1;
     int ret = uzmtp_net_connect(&self->conn, host, port);
     if (ret != 0) return -1;
-    ret = uzmtp_net_send(&self->conn, (const unsigned char *)&greeting,
-			 sizeof(greeting));
+    ret = self->tx(&self->conn, (const unsigned char *)&greeting,
+		   sizeof(greeting));
     if (ret != 64) return -1;
-    ret = uzmtp_net_recv(&self->conn, (unsigned char *)&incoming,
-			 sizeof(incoming));
+    ret = self->rx(&self->conn, (unsigned char *)&incoming, sizeof(incoming));
 
     // Send Ready
     _UzmtpMsg *ready = uzmtp_msg_from_const_data(0x04, "\5READY", 6);
@@ -80,7 +81,7 @@ int uzmtp_dealer_connect(_UzmtpDealer *self, const char *host, int port) {
 int uzmtp_dealer_send(_UzmtpDealer *self, _UzmtpMsg *msg) {
     assert(msg);
     assert(&self->conn);
-    int ret = uzmtp_net_send(&self->conn, &msg->flags, sizeof(msg->flags));
+    int ret = self->tx(&self->conn, &msg->flags, sizeof(msg->flags));
     if (ret != sizeof(msg->flags)) return -1;
 
     if (uzmtp_msg_flags(msg) & UZMTP_MSG_LARGE) {
@@ -94,15 +95,15 @@ int uzmtp_dealer_send(_UzmtpDealer *self, _UzmtpMsg *msg) {
 	buffer[5] = msg_size >> 16;
 	buffer[6] = msg_size >> 8;
 	buffer[7] = msg_size;
-	ret = uzmtp_net_send(&self->conn, buffer, sizeof(buffer));
+	ret = self->tx(&self->conn, buffer, sizeof(buffer));
 	if (ret != sizeof(buffer)) return -1;
-	uint64_t c = uzmtp_net_send(&self->conn, uzmtp_msg_data(msg), msg_size);
+	uint64_t c = self->tx(&self->conn, uzmtp_msg_data(msg), msg_size);
 	if (c != msg_size) return -1;
     } else {
 	const uint8_t msg_size = uzmtp_msg_size(msg);
-	ret = uzmtp_net_send(&self->conn, &msg_size, sizeof(msg_size));
+	ret = self->tx(&self->conn, &msg_size, sizeof(msg_size));
 	if (ret != sizeof(msg_size)) return -1;
-	ret = uzmtp_net_send(&self->conn, uzmtp_msg_data(msg), msg_size);
+	ret = self->tx(&self->conn, uzmtp_msg_data(msg), msg_size);
 	if (ret != msg_size) return -1;
     }
 
@@ -113,17 +114,17 @@ _UzmtpMsg *uzmtp_dealer_recv(_UzmtpDealer *self) {
     assert(msg);
     uint8_t flags;
     size_t size;
-    int ret = uzmtp_net_recv(&self->conn, &flags, 1);
+    int ret = self->rx(&self->conn, &flags, 1);
     if (ret != 1) return NULL;
     //  Check large flag
     if ((flags & UZMTP_MSG_LARGE) == 0) {
 	uint8_t buffer[1];
-	ret = uzmtp_net_recv(&self->conn, buffer, 1);
+	ret = self->rx(&self->conn, buffer, 1);
 	if (ret != 1) return NULL;
 	size = (size_t)buffer[0];
     } else {
 	uint8_t buffer[8];
-	ret = uzmtp_net_recv(&self->conn, buffer, sizeof(buffer));
+	ret = self->rx(&self->conn, buffer, sizeof(buffer));
 	if (ret != sizeof(buffer)) return NULL;
 	size = (uint64_t)buffer[0] << 56 | (uint64_t)buffer[1] << 48 |
 	       (uint64_t)buffer[2] << 40 | (uint64_t)buffer[3] << 32 |
@@ -132,7 +133,7 @@ _UzmtpMsg *uzmtp_dealer_recv(_UzmtpDealer *self) {
     }
     _UzmtpMsg *msg = uzmtp_msg_new(flags, size);
     if (!msg) return NULL;
-    ret = uzmtp_net_recv(&self->conn, msg->data, size);
+    ret = self->rx(&self->conn, msg->data, size);
     if (ret <= 0) uzmtp_msg_destroy(&msg);
     return msg;
 }
