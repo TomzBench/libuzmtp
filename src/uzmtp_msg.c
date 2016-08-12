@@ -50,66 +50,6 @@ void uzmtp_msg_destroy(_UzmtpMsg **self_p) {
     }
 }
 
-int uzmtp_msg_send(_UzmtpMsg *msg, _UzmtpSocket *sock) {
-    assert(msg);
-    assert(sock);
-    int ret = uzmtp_net_send(sock, &msg->flags, sizeof(msg->flags));
-    if (ret != sizeof(msg->flags)) return -1;
-
-    if (uzmtp_msg_flags(msg) & UZMTP_MSG_LARGE) {
-	uint8_t buffer[8];
-	const uint64_t msg_size = (uint64_t)uzmtp_msg_size(msg);
-	buffer[0] = msg_size >> 56;
-	buffer[1] = msg_size >> 48;
-	buffer[2] = msg_size >> 40;
-	buffer[3] = msg_size >> 32;
-	buffer[4] = msg_size >> 24;
-	buffer[5] = msg_size >> 16;
-	buffer[6] = msg_size >> 8;
-	buffer[7] = msg_size;
-	ret = uzmtp_net_send(sock, buffer, sizeof(buffer));
-	if (ret != sizeof(buffer)) return -1;
-	uint64_t c = uzmtp_net_send(sock, uzmtp_msg_data(msg), msg_size);
-	if (c != msg_size) return -1;
-    } else {
-	const uint8_t msg_size = uzmtp_msg_size(msg);
-	ret = uzmtp_net_send(sock, &msg_size, sizeof(msg_size));
-	if (ret != sizeof(msg_size)) return -1;
-	ret = uzmtp_net_send(sock, uzmtp_msg_data(msg), msg_size);
-	if (ret != msg_size) return -1;
-    }
-
-    return 0;
-}
-
-_UzmtpMsg *uzmtp_msg_recv(_UzmtpSocket *sock) {
-    assert(msg);
-    uint8_t flags;
-    size_t size;
-    int ret = uzmtp_net_recv(sock, &flags, 1);
-    if (ret != 1) return NULL;
-    //  Check large flag
-    if ((flags & UZMTP_MSG_LARGE) == 0) {
-	uint8_t buffer[1];
-	ret = uzmtp_net_recv(sock, buffer, 1);
-	if (ret != 1) return NULL;
-	size = (size_t)buffer[0];
-    } else {
-	uint8_t buffer[8];
-	ret = uzmtp_net_recv(sock, buffer, sizeof(buffer));
-	if (ret != sizeof(buffer)) return NULL;
-	size = (uint64_t)buffer[0] << 56 | (uint64_t)buffer[1] << 48 |
-	       (uint64_t)buffer[2] << 40 | (uint64_t)buffer[3] << 32 |
-	       (uint64_t)buffer[4] << 24 | (uint64_t)buffer[5] << 16 |
-	       (uint64_t)buffer[6] << 8 | (uint64_t)buffer[7];
-    }
-    _UzmtpMsg *msg = uzmtp_msg_new(flags, size);
-    if (!msg) return NULL;
-    ret = uzmtp_net_recv(sock, msg->data, size);
-    if (ret <= 0) uzmtp_msg_destroy(&msg);
-    return msg;
-}
-
 uint8_t uzmtp_msg_flags(_UzmtpMsg *self) { return self->flags; }
 
 void uzmtp_msg_set_more(_UzmtpMsg *self) { self->flags |= UZMTP_MSG_MORE; }
