@@ -2,27 +2,30 @@
 
 #include "net.h"
 
-int uzmtp_net_connect(_UzmtpSocket *s, const char *host, int port) {
+int uzmtp_net_connect(_UzmtpSocket *sock, const char *host, int port) {
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
-    if ((*s = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((sock->sock = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 	return -1;
     }
     inet_pton(AF_INET, host, &addr.sin_addr);
-    int rc = connect(*s, (struct sockaddr *)&addr, sizeof(addr));
+    int rc = connect(sock->sock, (struct sockaddr *)&addr, sizeof(addr));
     if (rc < 0) {
-	close(*s);
+	close(sock->sock);
 	return -1;
     }
     return 0;
 }
 
+int uzmtp_net_socket(_UzmtpSocket *s) { return s->sock; }
+
 int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
     int32_t bytes_read = 0;
     while (bytes_read < len) {
-	const int32_t n = recv(*s, (char *)b + bytes_read, len - bytes_read, 0);
+	const int32_t n =
+	    recv(s->sock, (char *)b + bytes_read, len - bytes_read, 0);
 	if (n == -1 && errno == EINTR) continue;
 	if (n == -1) return -1;
 	if (n == 0) return bytes_read;
@@ -35,7 +38,7 @@ int uzmtp_net_send(_UzmtpSocket *s, const unsigned char *b, size_t len) {
     size_t bytes_sent = 0;
     while (bytes_sent < len) {
 	const int32_t rc =
-	    send(*s, (char *)b + bytes_sent, len - bytes_sent, 0);
+	    send(s->sock, (char *)b + bytes_sent, len - bytes_sent, 0);
 	if (rc == -1 && errno == EINTR) continue;
 	if (rc == -1) return -1;
 	if (rc == 0) break;
@@ -73,7 +76,10 @@ int uzmtp_net_select(int *sock, int nsock, int time) {
     return 0;
 }
 
-void uzmtp_net_close(_UzmtpSocket *s) { close(*s); }
+void uzmtp_net_close(_UzmtpSocket *s) {
+    close(s->sock);
+    s->sock = 0;
+}
 
 //
 //

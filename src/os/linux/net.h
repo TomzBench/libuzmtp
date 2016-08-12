@@ -9,22 +9,27 @@
 extern "C" {
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/select.h>
 #include <assert.h>
+#include <errno.h>
+#include <netinet/in.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
-typedef int _UzmtpSocket;
+typedef struct {
+    void *ctx;
+    int sock;
+}_UzmtpSocket;
 
 int uzmtp_net_connect(_UzmtpSocket *, const char *, int port);
+
+int uzmtp_net_socket(_UzmtpSocket *);
 
 int uzmtp_net_recv(_UzmtpSocket *, unsigned char *buff, size_t len);
 

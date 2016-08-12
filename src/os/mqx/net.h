@@ -9,18 +9,23 @@
 extern "C" {
 #endif
 
-#include <mqx.h>
 #include <bsp.h>
-#include <rtcs.h>
 #include <ipcfg.h>
+#include <mqx.h>
 #include <mutex.h>
+#include <rtcs.h>
 #define uzmtp_malloc _mem_alloc
 #define uzmtp_free _mem_free
-#define assert(x) 
+#define assert(x)
 
-typedef int _UzmtpSocket;
+typedef struct {
+    void *ctx;
+    int sock;
+}_UzmtpSocket;
 
 int uzmtp_net_connect(_UzmtpSocket *, const char *, int port);
+
+int uzmtp_net_socket(_UzmtpSocket *);
 
 int uzmtp_net_recv(_UzmtpSocket *, unsigned char *buff, size_t len);
 

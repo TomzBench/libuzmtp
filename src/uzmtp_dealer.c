@@ -30,7 +30,7 @@ void uzmtp_dealer_free(_UzmtpDealer **self_p) {
     assert(*self_p);
     _UzmtpDealer *self = *self_p;
     *self_p = 0;
-    if (self->conn) {
+    if (uzmtp_net_socket(&self->conn)) {
 	uzmtp_net_close(&self->conn);
     }
     uzmtp_free(self);
@@ -52,7 +52,7 @@ int uzmtp_dealer_connect_endpoint(_UzmtpDealer *dealer, const char *ep) {
 int uzmtp_dealer_connect(_UzmtpDealer *self, const char *host, int port) {
     struct uzmtp_greeting incoming;
     assert(self);
-    if (self->conn) return -1;
+    if (uzmtp_net_socket(&self->conn)) return -1;
     int ret = uzmtp_net_connect(&self->conn, host, port);
     if (ret != 0) return -1;
     ret = uzmtp_net_send(&self->conn, (const unsigned char *)&greeting,
@@ -86,12 +86,12 @@ _UzmtpMsg *uzmtp_dealer_recv(_UzmtpDealer *self) {
 }
 
 int uzmtp_dealer_poll(_UzmtpDealer *self, int time) {
-    if (!self->conn) return -1;
-    return uzmtp_net_select(&self->conn, 1, time);
+    if (!uzmtp_net_socket(&self->conn)) return -1;
+    return uzmtp_net_select(&self->conn.sock, 1, time);
 }
 
 int uzmtp_dealer_socket(_UzmtpDealer *self) {
-    return self->conn ? self->conn : 0;
+    return uzmtp_net_socket(&self->conn);
 }
 
 //
