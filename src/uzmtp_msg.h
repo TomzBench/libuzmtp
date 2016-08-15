@@ -10,7 +10,6 @@ extern "C" {
 #endif
 
 #include "uzmtp_settings.h"
-#include "os/net.h"
 
 #define UZMTP_ANYSIZE_ARRAY 1
 typedef struct _UzmtpMsg {
@@ -34,10 +33,6 @@ _UzmtpMsg *uzmtp_msg_from_data(uint8_t flags, uint8_t **data_p, size_t size);
 _UzmtpMsg *uzmtp_msg_from_const_data(uint8_t flags, void *data, size_t size);
 
 void uzmtp_msg_destroy(_UzmtpMsg **self_p);
-
-int uzmtp_msg_send(_UzmtpMsg *msg, _UzmtpSocket *sock);
-
-_UzmtpMsg *uzmtp_msg_recv(_UzmtpSocket *);
 
 uint8_t uzmtp_msg_flags(_UzmtpMsg *self);
 void uzmtp_msg_set_more(_UzmtpMsg *self);

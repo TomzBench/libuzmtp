@@ -7,7 +7,7 @@ int uzmtp_net_connect(_UzmtpSocket *s, const char *ip, int port) {
     struct sockaddr_in addr;
 
     s->sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (*s == RTCS_SOCKET_ERROR) return -1;
+    if (s->sock == RTCS_SOCKET_ERROR) return -1;
     inet_pton(AF_INET, ip, &binip, sizeof(binip));
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -42,7 +42,7 @@ int uzmtp_net_connect(_UzmtpSocket *s, const char *ip, int port) {
     const int rc = connect(s->sock, &addr, sizeof(addr));
     if (rc != RTCS_OK) {
 	// freeaddrinfo(addrinfo);
-	uint32_t err = RTCS_geterror(*s);
+	uint32_t err = RTCS_geterror(s->sock);
 	((void)err);
 	shutdown(s->sock, FLAG_ABORT_CONNECTION);
 	return -1;

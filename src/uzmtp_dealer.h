@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include "os/net.h"
+#include "tls/tls.h"
 #include "uzmtp_msg.h"
 
 typedef int (*tx_fn)(_UzmtpSocket *, const unsigned char *, size_t);
@@ -24,6 +25,8 @@ typedef struct {
 // Public
 _UzmtpDealer *uzmtp_dealer_new();
 void uzmtp_dealer_free(_UzmtpDealer **);
+int uzmtp_dealer_load_server_pem(_UzmtpDealer *, const char *pem, size_t len);
+int uzmtp_dealer_load_server_pem(_UzmtpDealer *, const char *pem, size_t len);
 int uzmtp_dealer_connect_endpoint(_UzmtpDealer *, const char *);
 int uzmtp_dealer_connect(_UzmtpDealer *self, const char *host, int port);
 int uzmtp_dealer_send(_UzmtpDealer *, _UzmtpMsg *);

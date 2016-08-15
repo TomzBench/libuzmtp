@@ -38,6 +38,14 @@ void uzmtp_dealer_free(_UzmtpDealer **self_p) {
     uzmtp_free(self);
 }
 
+int uzmtp_dealer_load_server_pem(_UzmtpDealer *d, const char *pem, size_t len) {
+    return -1;
+}
+
+int uzmtp_dealer_use_client_pem(_UzmtpDealer *d, const char *pem, size_t len) {
+    return -1;
+}
+
 int uzmtp_dealer_connect_endpoint(_UzmtpDealer *dealer, const char *ep) {
     if ((memcmp(ep, "tcp://", 6))) return -1;
     char *colon = strchr(&ep[6], ':');

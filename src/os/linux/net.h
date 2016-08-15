@@ -25,7 +25,7 @@ extern "C" {
 typedef struct {
     void *ctx;
     int sock;
-}_UzmtpSocket;
+} _UzmtpSocket;
 
 int uzmtp_net_connect(_UzmtpSocket *, const char *, int port);
 
