@@ -22,8 +22,14 @@ extern "C" {
 #include <sys/socket.h>
 #include <unistd.h>
 
+#ifdef UZMTP_USE_WOLFSSL
+#include "../wolfssl/tls.h"
+#endif
+
+typedef struct _TlsCtx TlsCtx;
+
 typedef struct {
-    void *ctx;
+    TlsCtx *ctx;
     int sock;
 } _UzmtpSocket;
 

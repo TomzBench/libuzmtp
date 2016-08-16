@@ -45,6 +45,7 @@ flags = [
 '-lm',
 '-DNDEBUG',
 '-DUZMTP_USE_LINUX',
+'-DUZMTP_USE_WOLFSSL',
 # You 100% do NOT need -DUSE_CLANG_COMPLETER in your flags; only the YCM
 # source code needs it.
 #'-DUSE_CLANG_COMPLETER',
@@ -68,9 +69,9 @@ flags = [
 '-I',
 '/usr/local/include',
 '-isystem',
-'/user/local/include/wolfssl',
+'/usr/local/include/wolfssl',
 '-isystem',
-'/user/local/include/wolfssl/wolfcrypt',
+'/usr/local/include/wolfssl/wolfcrypt',
 '-I',
 './src',
 '-I',

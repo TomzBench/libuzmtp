@@ -8,6 +8,7 @@ MANDIR:=${PREFIX}/share/man
 
 IMGDIR:=build/img
 SRCS:=$(wildcard ./src/os/linux/*.c)
+SRCS+=$(wildcard ./src/os/wolfssl/*.c)
 SRCS+=\
       ./src/uzmtp.c \
       ./src/uzmtp_msg.c \
