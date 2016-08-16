@@ -10,7 +10,6 @@ extern "C" {
 #endif
 
 #include "os/net.h"
-#include "tls/tls.h"
 #include "uzmtp_msg.h"
 
 typedef int (*tx_fn)(_UzmtpSocket *, const unsigned char *, size_t);
