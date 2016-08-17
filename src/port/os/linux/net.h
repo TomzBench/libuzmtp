@@ -27,9 +27,10 @@ extern "C" {
 #endif
 
 typedef struct _TlsCtx TlsCtx;
+typedef struct _TlsSocket TlsSocket;
 
 typedef struct {
-    TlsCtx *ctx;
+    TlsSocket *ctx;
     int sock;
 } _UzmtpSocket;
 
@@ -44,6 +45,10 @@ int uzmtp_net_send(_UzmtpSocket *, const unsigned char *, size_t len);
 int uzmtp_net_select(int *sock, int nsock, int time);
 
 void uzmtp_net_close(_UzmtpSocket *);
+
+static inline _TlsCtx *uzmtp_tls_new() { return tls_new(); }
+
+static inline void uzmtp_tls_free(_TlsCtx **self_p) { return tls_free(self_p); }
 
 #ifdef __cplusplus
 } /* extern "C" */

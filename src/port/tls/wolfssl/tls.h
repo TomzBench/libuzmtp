@@ -12,6 +12,11 @@ extern "C" {
 #include <wolfssl/ssl.h>
 
 typedef WOLFSSL_CTX _TlsCtx;
+typedef WOLFSSL _TlsSocket;
+
+_TlsCtx* tls_new();
+
+void tls_free(_TlsCtx**);
 
 int tls_send(_TlsCtx *, const unsigned char *, size_t);
 
