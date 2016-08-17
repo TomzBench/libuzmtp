@@ -7,8 +7,8 @@ INCDIR:=${PREFIX}/include
 MANDIR:=${PREFIX}/share/man
 
 IMGDIR:=build/img
-SRCS:=$(wildcard ./src/os/linux/*.c)
-SRCS+=$(wildcard ./src/os/wolfssl/*.c)
+SRCS:=$(wildcard ./src/port/os/linux/*.c)
+SRCS+=$(wildcard ./src/port/tls/wolfssl/*.c)
 SRCS+=\
       ./src/uzmtp.c \
       ./src/uzmtp_msg.c \

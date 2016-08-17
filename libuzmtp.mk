@@ -2,7 +2,7 @@
 
 CFLAGS?=-O0 -g -Wall -DNDEBUG -DUZMTP_USE_LINUX -DUZMTP_USE_WOLFSSL
 LDFLAGS:=
-CC:=cc -std=gnu11
+CC:=cc -std=gnu11 -I ./src/port
 
 %.o: %.c
 	@echo "CC $@"

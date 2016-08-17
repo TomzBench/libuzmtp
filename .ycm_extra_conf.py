@@ -75,7 +75,7 @@ flags = [
 '-I',
 './src',
 '-I',
-'./src/os/linux'
+'./src/port'
 ]
 
 

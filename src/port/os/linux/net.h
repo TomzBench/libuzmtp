@@ -23,7 +23,7 @@ extern "C" {
 #include <unistd.h>
 
 #ifdef UZMTP_USE_WOLFSSL
-#include "../wolfssl/tls.h"
+#include "tls/wolfssl/tls.h"
 #endif
 
 typedef struct _TlsCtx TlsCtx;
