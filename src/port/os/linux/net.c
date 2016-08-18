@@ -87,6 +87,7 @@ int uzmtp_net_select(int *sock, int nsock, int time) {
 
 void uzmtp_net_close(_UzmtpSocket *s) {
     close(s->sock);
+    if(s->tls) tls_close(&s->tls);
     s->sock = 0;
 }
 

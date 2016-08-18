@@ -29,6 +29,8 @@ int tls_recv(_TlsSocket *, unsigned char *, size_t);
 
 _TlsSocket *tls_connect(_TlsCtx **ctx_p, int sockfd);
 
+void tls_close(_TlsSocket** tls_p);
+
 int tls_server_cert(_TlsCtx**, const unsigned char*, int);
 
 #ifdef __cplusplus
