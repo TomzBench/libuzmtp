@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "q": "^1.4.1",
     "zmq": "^2.15.3"
   }
 }
