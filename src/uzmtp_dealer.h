@@ -17,16 +17,18 @@ typedef int (*rx_fn)(_UzmtpSocket *, unsigned char *, size_t);
 
 typedef struct {
     _UzmtpSocket conn;
-    _TlsCtx *ctx;
-    tx_fn tx; /*!< tls/net tx method */
-    rx_fn rx; /*!< tls/net rx method */
+    _TlsCtx *ctx;      /* Simplify API if user is only using single TLS ctx */
+    _TlsCtx **ctx_ref; /* share ctx when need more than 1 tls dealer socket */
+    tx_fn tx;	  /*!< tls/net tx method */
+    rx_fn rx;	  /*!< tls/net rx method */
 } _UzmtpDealer;
 
 // Public
-_UzmtpDealer *uzmtp_dealer_new(bool);
+_UzmtpDealer *uzmtp_dealer_new();
 void uzmtp_dealer_free(_UzmtpDealer **);
-int uzmtp_dealer_load_server_pem(_UzmtpDealer *, const char *pem, size_t len);
-int uzmtp_dealer_load_server_pem(_UzmtpDealer *, const char *pem, size_t len);
+int uzmtp_dealer_use_tls(_UzmtpDealer *, _TlsCtx **);
+int uzmtp_dealer_use_server_pem(_UzmtpDealer *, const char *, size_t);
+int uzmtp_dealer_use_client_pem(_UzmtpDealer *, const char *, size_t);
 int uzmtp_dealer_connect_endpoint(_UzmtpDealer *, const char *);
 int uzmtp_dealer_connect(_UzmtpDealer *self, const char *host, int port);
 int uzmtp_dealer_send(_UzmtpDealer *, _UzmtpMsg *);

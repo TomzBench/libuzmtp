@@ -11,16 +11,23 @@ extern "C" {
 
 #include <wolfssl/ssl.h>
 
+// TODO - remove this include to uzmtp_settings.h?
+#ifdef UZMTP_USE_LINUX
+#include <sys/socket.h>
+#endif
+
 typedef WOLFSSL_CTX _TlsCtx;
 typedef WOLFSSL _TlsSocket;
 
-_TlsCtx* tls_new();
+_TlsCtx *tls_new();
 
-void tls_free(_TlsCtx**);
+void tls_free(_TlsCtx **);
 
-int tls_send(_TlsCtx *, const unsigned char *, size_t);
+int tls_send(_TlsSocket *, const unsigned char *, size_t);
 
-int tls_recv(_TlsCtx *, unsigned char *, size_t);
+int tls_recv(_TlsSocket *, unsigned char *, size_t);
+
+_TlsSocket *tls_connect(_TlsCtx **ctx_p, int sockfd);
 
 #ifdef __cplusplus
 } /* extern "C" */

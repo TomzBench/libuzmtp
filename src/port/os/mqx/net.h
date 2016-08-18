@@ -28,6 +28,8 @@ typedef struct {
 
 int uzmtp_net_connect(_UzmtpSocket *, const char *, int port);
 
+int uzmtp_tls_connect(_TlsCtx **, _UzmtpSocket *);
+
 int uzmtp_net_socket(_UzmtpSocket *);
 
 int uzmtp_net_recv(_UzmtpSocket *, unsigned char *buff, size_t len);

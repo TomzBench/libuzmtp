@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     s_catch_signals();
 
     // Setup dealer
-    UzmtpDealer *dealer = uzmtp_dealer_new();
+    UzmtpDealer *dealer = uzmtp_dealer_new(false);
     int ret = uzmtp_dealer_connect(dealer, "127.0.0.1", 5555);
     if (ret != 0) {
 	printf("connection failed!\n");

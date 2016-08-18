@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     // Allocate dealer socket ctx.
     UzmtpDealer *d = uzmtp_dealer_new();
     if (!d) return die_with_error(-1, "memory");
+    uzmtp_dealer_use_tls(d, NULL);
 
     // Connect to rep socket.
     if (uzmtp_dealer_connect_endpoint(d, argv[1])) {

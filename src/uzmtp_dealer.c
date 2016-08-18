@@ -19,18 +19,12 @@ static const struct uzmtp_greeting greeting = {
     .version = {3, 0},
     .mechanism = {'N', 'U', 'L', 'L', '\0'}};
 
-_UzmtpDealer *uzmtp_dealer_new(bool secure) {
+_UzmtpDealer *uzmtp_dealer_new() {
     _UzmtpDealer *d = uzmtp_malloc(sizeof(_UzmtpDealer));
     if (!d) return NULL;
     memset(d, 0, sizeof(_UzmtpDealer));
-    if (secure) {
-	d->ctx = uzmtp_tls_new();
-	// TODO - uzmtp_tls_send
-	// TODO - uzmtp_tls_recv
-    } else {
-	d->tx = uzmtp_net_send;
-	d->rx = uzmtp_net_recv;
-    }
+    d->tx = uzmtp_net_send;
+    d->rx = uzmtp_net_recv;
     return d;
 }
 
@@ -48,7 +42,20 @@ void uzmtp_dealer_free(_UzmtpDealer **self_p) {
     uzmtp_free(self);
 }
 
-int uzmtp_dealer_load_server_pem(_UzmtpDealer *d, const char *pem, size_t len) {
+int uzmtp_dealer_use_tls(_UzmtpDealer *d, _TlsCtx **ctx_ref) {
+    if (ctx_ref) {
+	d->ctx_ref = ctx_ref;
+    } else {
+	d->ctx = uzmtp_tls_new();
+	d->ctx_ref = &d->ctx;
+	if (!d->ctx) return -1;
+    }
+    d->tx = uzmtp_tls_send;
+    d->rx = uzmtp_tls_recv;
+    return 0;
+}
+
+int uzmtp_dealer_use_server_pem(_UzmtpDealer *d, const char *pem, size_t len) {
     return -1;
 }
 
@@ -73,8 +80,12 @@ int uzmtp_dealer_connect(_UzmtpDealer *self, const char *host, int port) {
     struct uzmtp_greeting incoming;
     assert(self);
     if (uzmtp_net_socket(&self->conn)) return -1;
-    // TODO - check tlsctx to call respective connect method
     int ret = uzmtp_net_connect(&self->conn, host, port);
+    if(ret != 0) return -1;
+    if (self->ctx_ref) {
+	ret = uzmtp_tls_connect(self->ctx_ref, &self->conn);
+    }
+    if(ret != 0) return -1;
     if (ret != 0) return -1;
     ret = self->tx(&self->conn, (const unsigned char *)&greeting,
 		   sizeof(greeting));

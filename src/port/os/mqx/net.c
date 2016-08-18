@@ -50,6 +50,14 @@ int uzmtp_net_connect(_UzmtpSocket *s, const char *ip, int port) {
     return 0;
 }
 
+int uzmtp_tls_connect(_TlsCtx **ctx, _UzmtpSocket *sock) {
+    sock->tls = tls_connect(ctx, sock->sock);
+    if (!sock->tls) {
+	return -1;
+    } else {
+	return 0;
+    }
+}
 int uzmtp_net_socket(_UzmtpSocket *s) { return s->sock; }
 
 int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
