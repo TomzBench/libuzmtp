@@ -144,6 +144,7 @@ _UzmtpMsg *uzmtp_dealer_recv(_UzmtpDealer *self) {
     uint8_t flags;
     size_t size;
     int ret = self->rx(&self->conn, &flags, 1);
+
     if (ret != 1) return NULL;
     //  Check large flag
     if ((flags & UZMTP_MSG_LARGE) == 0) {
@@ -160,6 +161,7 @@ _UzmtpMsg *uzmtp_dealer_recv(_UzmtpDealer *self) {
 	       (uint64_t)buffer[4] << 24 | (uint64_t)buffer[5] << 16 |
 	       (uint64_t)buffer[6] << 8 | (uint64_t)buffer[7];
     }
+
     _UzmtpMsg *msg = uzmtp_msg_new(flags, size);
     if (!msg) return NULL;
     ret = self->rx(&self->conn, msg->data, size);

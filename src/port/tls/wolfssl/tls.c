@@ -27,13 +27,13 @@ void tls_free(_TlsCtx** tls_p) {
 }
 
 _TlsSocket* tls_connect(_TlsCtx** ctx_p, int sockfd) {
-    char buffer[80];
+    // char buffer[80];
     _TlsSocket* tls = wolfSSL_new(*ctx_p);
     if (tls == NULL) return NULL;
     wolfSSL_set_fd(tls, sockfd);
     if (wolfSSL_connect(tls) != SSL_SUCCESS) {
-	int ret = wolfSSL_get_error(tls, 0);
-	wolfSSL_ERR_error_string(ret, buffer);
+	// int ret = wolfSSL_get_error(tls, 0);
+	// wolfSSL_ERR_error_string(ret, buffer);
 	wolfSSL_free(tls);
 	return NULL;
     } else {
@@ -42,29 +42,35 @@ _TlsSocket* tls_connect(_TlsCtx** ctx_p, int sockfd) {
 }
 
 int tls_send(_TlsSocket* tls, const unsigned char* b, size_t len) {
+    // char buffer[80];
     int ret = wolfSSL_write(tls, b, len);
     if ((ret < 0) || (ret != (int)len)) {
 	/* the message is not able to send, or error trying */
-	ret = wolfSSL_get_error(tls, 0);
+	// ret = wolfSSL_get_error(tls, 0);
+	// wolfSSL_ERR_error_string(ret, buffer);
     }
     return ret;
 }
 
 int tls_recv(_TlsSocket* tls, unsigned char* b, size_t len) {
+    // char buffer[80];
     int read = 0;
     while (read < (int)len) {
-	int bytes = wolfSSL_read(tls, &b[read], len);
+	int bytes = wolfSSL_read(tls, &b[read], len - read);
 	if (bytes < 0) {
 	    int err = wolfSSL_get_error(tls, 0);
 	    if (err == SSL_ERROR_WANT_READ) {
+		printf("want read\n");
 		continue;
 	    } else {
+		// wolfSSL_ERR_error_string(err, buffer);
 		break;
 	    }
 	} else {
 	    read += bytes;
 	}
     }
+    printf("recv %d/%ld\n", read, len);
     return read;
 }
 

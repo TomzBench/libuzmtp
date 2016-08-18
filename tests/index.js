@@ -23,40 +23,24 @@ start();
 
 function start() {
   var queue = new Queue();
-  queue.listen(23401).then(function(sock) {
+  queue.listen(23401).then(function(zmtp) {
     tls.createServer({
       key: fs.readFileSync("./server_key.pem"),
       cert: fs.readFileSync("./server_cert.pem")
     }, function(s) {
-      s.on("data", function(data) {
-        c.write(data, "binary");
-      });
-      s.on("error", function(error) {
-        console.log(error);
-      });
-      s.on("end", function() {
-        console.log("server terminated");
-      });
 
+      // connect to our zmq backend and pip tls<->zmq
       var c = net.connect({
         port: 23401
       });
-      c.on("data", function(data) {
-	s.write(data, "binary");
-      });
-      c.on("error", function(e) {
-        console.log(error);
-      });
-      c.on("end", function() {
-        console.log("client terminated");
-      });
-
+      s.pipe(c);
+      c.pipe(s);
     }).listen(23400);
 
-    sock.on("message", function(rid, msg) {
-      console.log(msg.toString());
+    zmtp.on("message", function(rid, msg) {
+      console.log(rid + " " + msg.toString());
     });
-    sock.on("error", function(e) {
+    zmtp.on("error", function(e) {
       console.log(e);
     });
   }).done();
