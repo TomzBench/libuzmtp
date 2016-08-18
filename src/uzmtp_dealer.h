@@ -27,8 +27,8 @@ typedef struct {
 _UzmtpDealer *uzmtp_dealer_new();
 void uzmtp_dealer_free(_UzmtpDealer **);
 int uzmtp_dealer_use_tls(_UzmtpDealer *, _TlsCtx **);
-int uzmtp_dealer_use_server_pem(_UzmtpDealer *, const char *, size_t);
-int uzmtp_dealer_use_client_pem(_UzmtpDealer *, const char *, size_t);
+int uzmtp_dealer_use_server_pem(_UzmtpDealer *, const uchar *, size_t);
+int uzmtp_dealer_use_client_pem(_UzmtpDealer *, const uchar *, size_t);
 int uzmtp_dealer_connect_endpoint(_UzmtpDealer *, const char *);
 int uzmtp_dealer_connect(_UzmtpDealer *self, const char *host, int port);
 int uzmtp_dealer_send(_UzmtpDealer *, _UzmtpMsg *);

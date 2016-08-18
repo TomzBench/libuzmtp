@@ -55,6 +55,10 @@ decruft:
 	rm -f ${OBJS} ${RELOBJS}
 
 .PHONY:
+print:
+	echo ${RELOBJS}
+
+.PHONY:
 install:
 	if [ -a $(IMGDIR)/libuzmtp ]; then cp $(IMGDIR)/libuzmtp $(BINDIR); fi;
 	if [ -a $(IMGDIR)/libuzmtp.so ]; then cp $(IMGDIR)/libuzmtp.so $(LIBDIR); fi;

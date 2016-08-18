@@ -27,10 +27,13 @@ void tls_free(_TlsCtx** tls_p) {
 }
 
 _TlsSocket* tls_connect(_TlsCtx** ctx_p, int sockfd) {
+    char buffer[80];
     _TlsSocket* tls = wolfSSL_new(*ctx_p);
     if (tls == NULL) return NULL;
     wolfSSL_set_fd(tls, sockfd);
     if (wolfSSL_connect(tls) != SSL_SUCCESS) {
+	int ret = wolfSSL_get_error(tls, 0);
+	wolfSSL_ERR_error_string(ret, buffer);
 	wolfSSL_free(tls);
 	return NULL;
     } else {
@@ -63,6 +66,13 @@ int tls_recv(_TlsSocket* tls, unsigned char* b, size_t len) {
 	}
     }
     return read;
+}
+
+int tls_server_cert(_TlsCtx** ctx_p, const unsigned char* pem, int pemlen) {
+    int ret =
+	wolfSSL_CTX_load_verify_buffer(*ctx_p, pem, pemlen, SSL_FILETYPE_PEM);
+    if (ret != SSL_SUCCESS) return -1;
+    return 0;
 }
 
 //

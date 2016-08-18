@@ -55,11 +55,11 @@ int uzmtp_dealer_use_tls(_UzmtpDealer *d, _TlsCtx **ctx_ref) {
     return 0;
 }
 
-int uzmtp_dealer_use_server_pem(_UzmtpDealer *d, const char *pem, size_t len) {
-    return -1;
+int uzmtp_dealer_use_server_pem(_UzmtpDealer *d, const uchar *pem, size_t len) {
+    return tls_server_cert(d->ctx_ref, pem, len);
 }
 
-int uzmtp_dealer_use_client_pem(_UzmtpDealer *d, const char *pem, size_t len) {
+int uzmtp_dealer_use_client_pem(_UzmtpDealer *d, const uchar *pem, size_t len) {
     return -1;
 }
 
@@ -81,11 +81,10 @@ int uzmtp_dealer_connect(_UzmtpDealer *self, const char *host, int port) {
     assert(self);
     if (uzmtp_net_socket(&self->conn)) return -1;
     int ret = uzmtp_net_connect(&self->conn, host, port);
-    if(ret != 0) return -1;
+    if (ret != 0) return -1;
     if (self->ctx_ref) {
 	ret = uzmtp_tls_connect(self->ctx_ref, &self->conn);
     }
-    if(ret != 0) return -1;
     if (ret != 0) return -1;
     ret = self->tx(&self->conn, (const unsigned char *)&greeting,
 		   sizeof(greeting));

@@ -5,7 +5,7 @@ all: uzmtp-client
 
 uzmtp-client: uzmtp-client.o
 	@echo "LINK $@"
-	@${CC} uzmtp-client.o -o uzmtp-client -L../build/img -luzmtp
+	@${CC} uzmtp-client.o -o uzmtp-client -L/home/dev/git/altronix/libuzmtp/build/img -luzmtp
 
 %.o: %.c
 	@echo "CC $@"

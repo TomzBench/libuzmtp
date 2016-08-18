@@ -51,7 +51,8 @@ extern int uzmtp_dealer_use_tls(UzmtpDealer *, TlsCtx **);
  *
  * @return
  */
-extern int uzmtp_dealer_use_server_pem(UzmtpDealer *, const char *, size_t);
+extern int uzmtp_dealer_use_server_pem(UzmtpDealer *, const unsigned char *,
+				       size_t);
 
 /**
  * @brief
