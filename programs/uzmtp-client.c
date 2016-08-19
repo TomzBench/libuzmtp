@@ -41,6 +41,8 @@ int main(int argc, char *argv[]) {
     // Allocate dealer socket ctx.
     UzmtpDealer *d = uzmtp_dealer_new();
     if (!d) return die_with_error(-1, "memory");
+
+    // Optional setup tls...
     uzmtp_dealer_use_tls(d, NULL);
     uzmtp_dealer_use_server_pem(d, server_cert, strlen((char *)server_cert));
 
@@ -64,7 +66,12 @@ int main(int argc, char *argv[]) {
 	return die_with_error(-4, "network error!");
     }
 
-    // TODO - wait for response!
+    // Get response.
+    UzmtpMsg *resp = uzmtp_dealer_recv(d);
+    if (resp) {
+	printf("%.*s\n", (int)uzmtp_msg_size(resp), uzmtp_msg_data(resp));
+	uzmtp_msg_destroy(&resp);
+    }
 
     // Clean
     uzmtp_dealer_free(&d);

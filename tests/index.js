@@ -39,6 +39,7 @@ function start() {
 
     zmtp.on("message", function(rid, msg) {
       console.log(rid + " " + msg.toString());
+      zmtp.send([rid, msg.toString().toUpperCase()]);
     });
     zmtp.on("error", function(e) {
       console.log(e);
