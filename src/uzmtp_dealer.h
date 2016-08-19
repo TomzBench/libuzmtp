@@ -36,6 +36,11 @@ _UzmtpMsg *uzmtp_dealer_recv(_UzmtpDealer *);
 int uzmtp_dealer_poll(_UzmtpDealer *self, int time);
 int uzmtp_dealer_socket(_UzmtpDealer *);
 
+static inline _TlsCtx *uzmtp_dealer_tls_new() { return tls_new(); }
+static inline void uzmtp_dealer_tls_free(_TlsCtx **ctx_p) {
+    return tls_free(ctx_p);
+}
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

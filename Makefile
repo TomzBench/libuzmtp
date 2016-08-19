@@ -63,7 +63,7 @@ install:
 	if [ -a $(IMGDIR)/libuzmtp ]; then cp $(IMGDIR)/libuzmtp $(BINDIR); fi;
 	if [ -a $(IMGDIR)/libuzmtp.so ]; then cp $(IMGDIR)/libuzmtp.so $(LIBDIR); fi;
 	mkdir /usr/local/include/uzmtp/ -p
-	cp ${HDRS} /usr/local/include/uzmtp/
+	cp ./src/uzmtp.h ./src/uzmtp_settings.h /usr/local/include/uzmtp/
 
 .PHONY: clean
 clean:

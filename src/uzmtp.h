@@ -120,6 +120,9 @@ extern int uzmtp_dealer_poll(UzmtpDealer *self, int time);
 
 extern int uzmtp_dealer_socket(UzmtpDealer *);
 
+extern TlsCtx *uzmtp_dealer_tls_new();
+extern void uzmtp_dealer_tls_free(TlsCtx **ctx_p);
+
 enum EUZMTP_MSG;
 extern UzmtpMsg *uzmtp_msg_new(uint8_t flags, size_t size);
 extern UzmtpMsg *uzmtp_msg_from_data(uint8_t flags, uint8_t **data_p,
