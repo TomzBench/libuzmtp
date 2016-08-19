@@ -72,6 +72,7 @@ int tls_recv(_TlsSocket* tls, unsigned char* b, size_t len) {
 		break;
 	    }
 	} else if (read == 0) {
+	    printf("%s\n", "connection closed");
 	    break;  // client did normal close
 	} else {
 	    read += bytes;
