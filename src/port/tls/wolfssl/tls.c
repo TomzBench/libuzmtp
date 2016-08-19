@@ -66,7 +66,8 @@ int tls_recv(_TlsSocket* tls, unsigned char* b, size_t len) {
 	if (bytes < 0) {
 	    int err = wolfSSL_get_error(tls, bytes);
 	    if (err == SSL_ERROR_WANT_READ) {
-		continue;
+		count += wolfSSL_read(tls, &b[count], len - count);
+		break;
 	    } else {
 		wolfSSL_ERR_error_string(err, buffer);
 		break;
