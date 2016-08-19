@@ -14,6 +14,7 @@ extern "C" {
 typedef struct _UzmtpDealer UzmtpDealer;
 typedef struct _UzmtpMsg UzmtpMsg;
 typedef struct _UzmtpSocket UzmtpSocket;
+typedef struct _TlsCtx TlsCtx;
 
 /**
  * @brief Create a new instance of a dealer socket. Return object required for
@@ -30,6 +31,39 @@ extern UzmtpDealer *uzmtp_dealer_new();
  * @param dealer_p Address of pointer to dealer socket.
  */
 extern void uzmtp_dealer_free(UzmtpDealer **);
+
+/**
+ * @brief Install TLS behavior for all socket operations.
+ *
+ * @param dealer created with uzmtp_dealer_new() api.
+ * @param [optional] Shared TLS context or NULL if only need one socket.
+ *
+ * @return 0 Success, -1 error
+ */
+extern int uzmtp_dealer_use_tls(UzmtpDealer *, TlsCtx **);
+
+/**
+ * @brief
+ *
+ * @param
+ * @param
+ * @param size_t
+ *
+ * @return
+ */
+extern int uzmtp_dealer_use_server_pem(UzmtpDealer *, const unsigned char *,
+				       size_t);
+
+/**
+ * @brief
+ *
+ * @param
+ * @param
+ * @param size_t
+ *
+ * @return
+ */
+extern int uzmtp_dealer_use_client_pem(UzmtpDealer *, const char *, size_t);
 
 /**
  * @brief Connect to a remote zmtp listener.
@@ -72,7 +106,6 @@ extern int uzmtp_dealer_send(UzmtpDealer *, UzmtpMsg *);
 
 extern UzmtpMsg *uzmtp_dealer_recv(UzmtpDealer *);
 
-
 /**
  * @brief Poll socket for activity.
  *
@@ -86,6 +119,9 @@ extern UzmtpMsg *uzmtp_dealer_recv(UzmtpDealer *);
 extern int uzmtp_dealer_poll(UzmtpDealer *self, int time);
 
 extern int uzmtp_dealer_socket(UzmtpDealer *);
+
+extern TlsCtx *uzmtp_dealer_tls_new();
+extern void uzmtp_dealer_tls_free(TlsCtx **ctx_p);
 
 enum EUZMTP_MSG;
 extern UzmtpMsg *uzmtp_msg_new(uint8_t flags, size_t size);

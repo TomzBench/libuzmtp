@@ -9,11 +9,11 @@
 extern "C" {
 #endif
 
-#include <bsp.h>
-#include <ipcfg.h>
 #include <mqx.h>
-#include <mutex.h>
+#include <bsp.h>
 #include <rtcs.h>
+#include <ipcfg.h>
+#include <mutex.h>
 #define uzmtp_malloc _mem_alloc
 #define uzmtp_free _mem_free
 #define assert(x)
@@ -27,7 +27,7 @@ typedef struct _TlsSocket TlsSocket;
 typedef unsigned char uchar;
 
 typedef struct {
-    TlsSocket *tls;
+    _TlsSocket *tls;
     int sock;
 } _UzmtpSocket;
 
@@ -47,7 +47,7 @@ void uzmtp_net_close(_UzmtpSocket *);
 
 static inline _TlsCtx *uzmtp_tls_new() { return tls_new(); }
 
-static inline void uzmtp_tls_free(_TlsCtx **self) { return tls_free(self_p); }
+static inline void uzmtp_tls_free(_TlsCtx **self_p) { return tls_free(self_p); }
 
 static inline int uzmtp_tls_recv(_UzmtpSocket *s, unsigned char *b, size_t l) {
     return tls_recv(s->tls, b, l);
