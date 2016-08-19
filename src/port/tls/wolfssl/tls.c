@@ -60,9 +60,9 @@ int tls_send(_TlsSocket* tls, const unsigned char* b, size_t len) {
 
 int tls_recv(_TlsSocket* tls, unsigned char* b, size_t len) {
     // char buffer[80];
-    int read = 0;
-    while (read < (int)len) {
-	int bytes = wolfSSL_read(tls, &b[read], len - read);
+    int count = 0;
+    while (count < (int)len) {
+	int bytes = wolfSSL_read(tls, &b[count], len - count);
 	if (bytes < 0) {
 	    int err = wolfSSL_get_error(tls, 0);
 	    if (err == SSL_ERROR_WANT_READ) {
@@ -74,10 +74,10 @@ int tls_recv(_TlsSocket* tls, unsigned char* b, size_t len) {
 	} else if (bytes == 0) {
 	    break;  // client did normal close
 	} else {
-	    read += bytes;
+	    count += bytes;
 	}
     }
-    return read;
+    return count;
 }
 
 int tls_server_cert(_TlsCtx** ctx_p, const unsigned char* pem, int pemlen) {
