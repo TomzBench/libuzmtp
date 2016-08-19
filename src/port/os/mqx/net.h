@@ -18,11 +18,16 @@ extern "C" {
 #define uzmtp_free _mem_free
 #define assert(x)
 
+#ifdef UZMTP_USE_WOLFSSL
+#include "tls/wolfssl/tls.h"
+#endif
+
 typedef struct _TlsCtx TlsCtx;
 typedef struct _TlsSocket TlsSocket;
+typedef unsigned char uchar;
 
 typedef struct {
-    TlsSocket *ctx;
+    TlsSocket *tls;
     int sock;
 } _UzmtpSocket;
 
@@ -43,6 +48,15 @@ void uzmtp_net_close(_UzmtpSocket *);
 static inline _TlsCtx *uzmtp_tls_new() { return tls_new(); }
 
 static inline void uzmtp_tls_free(_TlsCtx **self) { return tls_free(self_p); }
+
+static inline int uzmtp_tls_recv(_UzmtpSocket *s, unsigned char *b, size_t l) {
+    return tls_recv(s->tls, b, l);
+}
+
+static inline int uzmtp_tls_send(_UzmtpSocket *s, const uchar *b, size_t l) {
+    return tls_send(s->tls, b, l);
+}
+
 
 #ifdef __cplusplus
 } /* extern "C" */
