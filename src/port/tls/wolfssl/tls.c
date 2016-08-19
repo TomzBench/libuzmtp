@@ -71,8 +71,7 @@ int tls_recv(_TlsSocket* tls, unsigned char* b, size_t len) {
 		// wolfSSL_ERR_error_string(err, buffer);
 		break;
 	    }
-	} else if (read == 0) {
-	    printf("%s\n", "connection closed");
+	} else if (bytes == 0) {
 	    break;  // client did normal close
 	} else {
 	    read += bytes;
