@@ -2,11 +2,9 @@
 // index.js
 //
 
-var tls = require('tls'),
-  zmq = require('zmq'),
-  q = require('q'),
-  net = require('net'),
-  fs = require('fs');
+var zmq = require('zmq'),
+  TlsTerminate = require('./tls_terminate.js'),
+  q = require('q');
 
 function Queue() {};
 Queue.prototype.listen = function(port, cb) {
@@ -19,33 +17,23 @@ Queue.prototype.listen = function(port, cb) {
   });
 }
 
-start();
+var queue = new Queue();
+var proxy = new TlsTerminate();
 
-function start() {
-  var queue = new Queue();
-  queue.listen(23401).then(function(zmtp) {
-    tls.createServer({
-      key: fs.readFileSync("./server_key.pem"),
-      cert: fs.readFileSync("./server_cert.pem")
-    }, function(s) {
+queue.listen(23401).then(function(zmtp) {
+  // Backend is up, set up proxy...
+  proxy.listen({
+    key: "./server_key.pem",
+    cert: "./server_cert.pem",
+    tcp: 23401,
+    tcps: 23400
+  });
 
-      // connect to our zmq backend and pip tls<->zmq
-      var c = net.connect({
-        port: 23401
-      });
-      s.pipe(c);
-      c.pipe(s);
-    }).listen(23400);
-
-    zmtp.on("message", function(rid, msg) {
-      console.log(rid + " " + msg.toString());
-      zmtp.send([rid, msg.toString().toUpperCase()]);
-    });
-    zmtp.on("error", function(e) {
-      console.log(e);
-    });
-  }).done();
-}
-//
-//
-//
+  // Handle zmq.
+  zmtp.on("message", function(rid, msg) {
+    zmtp.send([rid, msg.toString().toUpperCase()]);
+  });
+  zmtp.on("error", function(e) {
+    console.log(e);
+  });
+}).done();
