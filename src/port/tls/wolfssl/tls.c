@@ -59,16 +59,16 @@ int tls_send(_TlsSocket* tls, const unsigned char* b, size_t len) {
 }
 
 int tls_recv(_TlsSocket* tls, unsigned char* b, size_t len) {
-    // char buffer[80];
+    char buffer[80];
     int count = 0;
     while (count < (int)len) {
 	int bytes = wolfSSL_read(tls, &b[count], len - count);
 	if (bytes < 0) {
-	    int err = wolfSSL_get_error(tls, 0);
+	    int err = wolfSSL_get_error(tls, bytes);
 	    if (err == SSL_ERROR_WANT_READ) {
 		continue;
 	    } else {
-		// wolfSSL_ERR_error_string(err, buffer);
+		wolfSSL_ERR_error_string(err, buffer);
 		break;
 	    }
 	} else if (bytes == 0) {
