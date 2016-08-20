@@ -29,6 +29,7 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#define SOCK_ERR 0
 #endif
 
 #ifdef UZMTP_USE_MQX
@@ -36,6 +37,7 @@ extern "C" {
 #include <bsp.h>
 #include <rtcs.h>
 #include <ipcfg.h>
+#define SOCK_ERR RTCS_geterror()
 #define MSG_DONTWAIT RTCS_MSG_BLOCK
 #define uzmtp_malloc _mem_alloc
 #define uzmtp_free _mem_free
