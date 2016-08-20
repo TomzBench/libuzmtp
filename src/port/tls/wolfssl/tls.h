@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <uzmtp/uzmtp_settings.h>
+
 #include <wolfssl/ssl.h>
 
 // TODO - remove this include to uzmtp_settings.h?
