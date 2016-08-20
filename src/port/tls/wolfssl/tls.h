@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include <uzmtp/uzmtp_settings.h>
+#include <uzmtp_settings.h>
 
 #include <wolfssl/ssl.h>
 
