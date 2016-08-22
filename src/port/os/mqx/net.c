@@ -69,7 +69,7 @@ int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
 int uzmtp_net_recv_fd(int sockfd, unsigned char *b, size_t len) {
     int bytes_read = 0;
     while (bytes_read < len) {
-    	int active = uzmtp_net_select(&sockfd, 1, 100);
+    	int active = uzmtp_net_select(&sockfd, 1, 200);
     	if(active == sockfd){
     		const int n = recv(sockfd, (char *)b + bytes_read, (len - bytes_read),
     				MSG_DONTWAIT);
@@ -83,7 +83,7 @@ int uzmtp_net_recv_fd(int sockfd, unsigned char *b, size_t len) {
     			bytes_read += n;
     		}
     	}else{
-    		break;
+    		return bytes_read > 0 ? bytes_read : -1;
     	}
     }
     return bytes_read;
