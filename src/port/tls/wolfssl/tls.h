@@ -21,6 +21,9 @@ extern "C" {
 typedef WOLFSSL_CTX _TlsCtx;
 typedef WOLFSSL _TlsSocket;
 
+typedef int (*tls_tx_fn)(_TlsSocket*, char*, int, void*);
+typedef int (*tls_rx_fn)(_TlsSocket*, char*, int, void*);
+
 _TlsCtx *tls_new();
 
 void tls_free(_TlsCtx **);
@@ -34,6 +37,9 @@ _TlsSocket *tls_connect(_TlsCtx **ctx_p, int sockfd);
 void tls_close(_TlsSocket** tls_p);
 
 int tls_server_cert(_TlsCtx**, const unsigned char*, int);
+
+void tls_override_tx(tls_tx_fn);
+void tls_override_rx(tls_rx_fn);
 
 #ifdef __cplusplus
 } /* extern "C" */

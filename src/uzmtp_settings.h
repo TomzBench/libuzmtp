@@ -29,6 +29,7 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 #define SOCK_ERR 0
 #endif
 
