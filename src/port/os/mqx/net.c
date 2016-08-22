@@ -17,13 +17,13 @@ int uzmtp_net_connect(_UzmtpSocket *s, const char *ip, int port) {
     addr.sin_port = port;
     addr.sin_addr = binip;
     uint32_t is_err = 0;
-    uint32_t option = 5000;
+    uint32_t option = 25000;
     is_err |= setsockopt(s->sock, SOL_TCP, OPT_SEND_TIMEOUT, &option,  //
 			 sizeof(option));
-    option = 750;
+    option = 2750;
     is_err |= setsockopt(s->sock, SOL_TCP, OPT_CONNECT_TIMEOUT, &option,
 			 sizeof(option));
-    option = 5000;
+    option = 25000;
     is_err |= setsockopt(s->sock, SOL_TCP, OPT_RECEIVE_TIMEOUT, &option,
 			 sizeof(option));
     option = FALSE;
