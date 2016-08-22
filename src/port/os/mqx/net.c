@@ -2,6 +2,9 @@
 
 #include "net.h"
 
+int _mqx_io_tx(_UzmtpSocket *s, char *, int, void *);
+int _mqx_io_rx(_UzmtpSocket *s, char *, int, void *);
+
 int uzmtp_net_connect(_UzmtpSocket *s, const char *ip, int port) {
     struct in_addr binip;
     struct sockaddr_in addr;
@@ -101,6 +104,22 @@ void uzmtp_net_close(_UzmtpSocket *s) {
     shutdown(s->sock, FLAG_CLOSE_TX);
     if (s->tls) tls_close(&s->tls);
     s->sock = 0;
+}
+
+_TlsCtx *uzmtp_tls_new() {
+    _TlsCtx *ctx = tls_new();
+    if (!ctx) return NULL;
+    tls_override_tx(ctx, _mqx_io_tx);
+    tls_override_rx(ctx, _mqx_io_rx);
+}
+
+int _mqx_io_tx(_UzmtpSocket *s, char *b, int len, void *ctx) {
+    ((void)ctx);
+    return uzmtp_net_send(s, b, len);
+}
+int _mqx_io_rx(_UzmtpSocket *s, char *b, int len, void *ctx) {
+    ((void)ctx);
+    return uzmtp_net_recv(s, b, len);
 }
 
 //

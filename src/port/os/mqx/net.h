@@ -45,7 +45,7 @@ int uzmtp_net_select(int *sock, int nsock, int time);
 
 void uzmtp_net_close(_UzmtpSocket *);
 
-static inline _TlsCtx *uzmtp_tls_new() { return tls_new(); }
+_TlsCtx *uzmtp_tls_new();
 
 static inline void uzmtp_tls_free(_TlsCtx **self_p) { return tls_free(self_p); }
 
