@@ -69,22 +69,22 @@ int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
 int uzmtp_net_recv_fd(int sockfd, unsigned char *b, size_t len) {
     int bytes_read = 0;
     while (bytes_read < len) {
-    	int active = uzmtp_net_select(&sockfd, 1, 100);
-    	if(active == sockfd){
-    		const int n = recv(sockfd, (char *)b + bytes_read, (len - bytes_read),
-    				MSG_DONTWAIT);
-    		if (n == -1) {
-    			uint32_t error = RTCS_geterror(sockfd);
-    			if(error == RTCSERR_TCP_TIMED_OUT) continue;
-    			break;
-    		} else if (n == 0) {
-    			break;
-    		} else {
-    			bytes_read += n;
-    		}
-    	}else{
-    		break;
-    	}
+	int active = uzmtp_net_select(&sockfd, 1, 100);
+	if (active == sockfd) {
+	    const int n = recv(sockfd, (char *)b + bytes_read,
+			       (len - bytes_read), MSG_DONTWAIT);
+	    if (n == -1) {
+		uint32_t error = RTCS_geterror(sockfd);
+		if (error == RTCSERR_TCP_TIMED_OUT) continue;
+		break;
+	    } else if (n == 0) {
+		break;
+	    } else {
+		bytes_read += n;
+	    }
+	} else {
+	    break;
+	}
     }
     return bytes_read;
 }
@@ -131,11 +131,11 @@ _TlsCtx *uzmtp_tls_new() {
 
 int _mqx_io_tx(_TlsSocket *s, char *b, int len, void *ctx) {
     ((void)ctx);
-    return uzmtp_net_send_fd(wolfSSL_get_fd(s),(uchar*) b, len);
+    return uzmtp_net_send_fd(wolfSSL_get_fd(s), (uchar *)b, len);
 }
 int _mqx_io_rx(_TlsSocket *s, char *b, int len, void *ctx) {
     ((void)ctx);
-    return uzmtp_net_recv_fd(wolfSSL_get_fd(s),(uchar*) b, len);
+    return uzmtp_net_recv_fd(wolfSSL_get_fd(s), (uchar *)b, len);
 }
 
 //
