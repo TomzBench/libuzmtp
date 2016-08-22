@@ -66,7 +66,7 @@ int uzmtp_net_socket(_UzmtpSocket *s) { return s->sock; }
 int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
     return uzmtp_net_recv_fd(s->sock, b, len);
 }
-int uzmtp_net_recv_fd(int sockfd, unsigned char *buff, size_t len) {
+int uzmtp_net_recv_fd(int sockfd, unsigned char *b, size_t len) {
     int bytes_read = 0;
     while (bytes_read < len) {
 	const int n = recv(sockfd, (char *)b + bytes_read, (len - bytes_read),
@@ -126,11 +126,11 @@ _TlsCtx *uzmtp_tls_new() {
 
 int _mqx_io_tx(_TlsSocket *s, char *b, int len, void *ctx) {
     ((void)ctx);
-    return uzmtp_net_send(wolfSSL_get_fd(s), b, len);
+    return uzmtp_net_send_fd(wolfSSL_get_fd(s),(uchar*) b, len);
 }
 int _mqx_io_rx(_TlsSocket *s, char *b, int len, void *ctx) {
     ((void)ctx);
-    return uzmtp_net_recv(wolfSSL_get_fd(s), b, len);
+    return uzmtp_net_recv_fd(wolfSSL_get_fd(s),(uchar*) b, len);
 }
 
 //
