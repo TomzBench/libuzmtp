@@ -2,8 +2,8 @@
 
 #include "net.h"
 
-int _mqx_io_tx(_UzmtpSocket *s, char *, int, void *);
-int _mqx_io_rx(_UzmtpSocket *s, char *, int, void *);
+int _mqx_io_tx(_TlsSocket *s, char *, int, void *);
+int _mqx_io_rx(_TlsSocket *s, char *, int, void *);
 
 int uzmtp_net_connect(_UzmtpSocket *s, const char *ip, int port) {
     struct in_addr binip;
@@ -63,15 +63,20 @@ int uzmtp_tls_connect(_TlsCtx **ctx, _UzmtpSocket *sock) {
 }
 int uzmtp_net_socket(_UzmtpSocket *s) { return s->sock; }
 
-int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
+int uzmtp_net_recv(int sockfd, unsigned char *b, size_t len) {
     int bytes_read = 0;
     while (bytes_read < len) {
+    	
 	const int n =
-	    recv(s->sock, (char *)b + bytes_read, (len - bytes_read), 0);
-	if (n == -1)
+	    recv(sockfd, (char *)b + bytes_read, (len - bytes_read), MSG_DONTWAIT);
+	if (n == -1){
+		uint32_t error = RTCS_geterror(sockfd);
+		((void)error);
 	    break;
-	else if (n == 0)
+	}
+	else if (n == 0){
 	    break;
+	}
 	else {
 	    bytes_read += n;
 	}
@@ -79,15 +84,16 @@ int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
     return bytes_read;
 }
 
-int uzmtp_net_send(_UzmtpSocket *s, const unsigned char *b, size_t len) {
+int uzmtp_net_send(int sockfd, const unsigned char *b, size_t len) {
     int bytes_sent = 0;
     while (bytes_sent < len) {
 	const int rc =
-	    send(s->sock, (char *)b + bytes_sent, (len - bytes_sent), 0);
+	    send(sockfd, (char *)b + bytes_sent, (len - bytes_sent), 0);
 	if (rc == 0) {
 	    break;
 	} /*!<socket closed */
 	else if (rc == -1) {
+		if (errno == EINTR) continue;
 	    bytes_sent = -1;
 	    break; /*!<Socket error */
 	} else
@@ -107,20 +113,20 @@ void uzmtp_net_close(_UzmtpSocket *s) {
 }
 
 _TlsCtx *uzmtp_tls_new() {
-    _TlsCtx *ctx = tls_new();
-    if (!ctx) return NULL;
     tls_override_tx(_mqx_io_tx);
     tls_override_rx(_mqx_io_rx);
+    _TlsCtx *ctx = tls_new();
+    if (!ctx) return NULL;
     return ctx;
 }
 
-int _mqx_io_tx(_UzmtpSocket *s, char *b, int len, void *ctx) {
+int _mqx_io_tx(_TlsSocket *s, char *b, int len, void *ctx) {
     ((void)ctx);
-    return uzmtp_net_send(s, b, len);
+    return uzmtp_net_send(wolfSSL_get_fd(s), b, len);
 }
-int _mqx_io_rx(_UzmtpSocket *s, char *b, int len, void *ctx) {
+int _mqx_io_rx(_TlsSocket *s, char *b, int len, void *ctx) {
     ((void)ctx);
-    return uzmtp_net_recv(s, b, len);
+    return uzmtp_net_recv(wolfSSL_get_fd(s), b, len);
 }
 
 //

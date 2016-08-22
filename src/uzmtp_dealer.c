@@ -178,8 +178,8 @@ int uzmtp_dealer_socket(_UzmtpDealer *self) {
     return uzmtp_net_socket(&self->conn);
 }
 
-_TlsCtx *uzmtp_dealer_tls_new() { return tls_new(); }
-void uzmtp_dealer_tls_free(_TlsCtx **ctx_p) { return tls_free(ctx_p); }
+_TlsCtx *uzmtp_dealer_tls_new() { return uzmtp_tls_new(); }
+void uzmtp_dealer_tls_free(_TlsCtx **ctx_p) { return uzmtp_tls_free(ctx_p); }
 
 //
 //
