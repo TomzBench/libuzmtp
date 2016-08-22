@@ -109,8 +109,9 @@ void uzmtp_net_close(_UzmtpSocket *s) {
 _TlsCtx *uzmtp_tls_new() {
     _TlsCtx *ctx = tls_new();
     if (!ctx) return NULL;
-    tls_override_tx(ctx, _mqx_io_tx);
-    tls_override_rx(ctx, _mqx_io_rx);
+    tls_override_tx(_mqx_io_tx);
+    tls_override_rx(_mqx_io_rx);
+    return ctx;
 }
 
 int _mqx_io_tx(_UzmtpSocket *s, char *b, int len, void *ctx) {

@@ -38,6 +38,7 @@ extern "C" {
 #include <bsp.h>
 #include <rtcs.h>
 #include <ipcfg.h>
+#include <errno.h>
 #define SOCK_ERR RTCS_geterror()
 #define MSG_DONTWAIT RTCS_MSG_BLOCK
 #define uzmtp_malloc _mem_alloc
