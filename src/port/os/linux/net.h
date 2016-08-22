@@ -42,8 +42,10 @@ int uzmtp_tls_connect(_TlsCtx **, _UzmtpSocket *);
 int uzmtp_net_socket(_UzmtpSocket *);
 
 int uzmtp_net_recv(_UzmtpSocket *, unsigned char *buff, size_t len);
+int uzmtp_net_recv_fd(int, unsigned char *buff, size_t len);
 
 int uzmtp_net_send(_UzmtpSocket *, const unsigned char *, size_t len);
+int uzmtp_net_send_fd(int, const unsigned char *, size_t len);
 
 int uzmtp_net_select(int *sock, int nsock, int time);
 

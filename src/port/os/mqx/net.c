@@ -63,28 +63,32 @@ int uzmtp_tls_connect(_TlsCtx **ctx, _UzmtpSocket *sock) {
 }
 int uzmtp_net_socket(_UzmtpSocket *s) { return s->sock; }
 
-int uzmtp_net_recv(int sockfd, unsigned char *b, size_t len) {
+int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
+    return uzmtp_net_recv_fd(s->sock, b, len);
+}
+int uzmtp_net_recv_fd(int sockfd, unsigned char *buff, size_t len) {
     int bytes_read = 0;
     while (bytes_read < len) {
-    	
-	const int n =
-	    recv(sockfd, (char *)b + bytes_read, (len - bytes_read), MSG_DONTWAIT);
-	if (n == -1){
-		uint32_t error = RTCS_geterror(sockfd);
-		((void)error);
+	const int n = recv(sockfd, (char *)b + bytes_read, (len - bytes_read),
+			   MSG_DONTWAIT);
+	if (n == -1) {
+	    uint32_t error = RTCS_geterror(sockfd);
+	    ((void)error);
 	    break;
-	}
-	else if (n == 0){
+	} else if (n == 0) {
 	    break;
-	}
-	else {
+	} else {
 	    bytes_read += n;
 	}
     }
     return bytes_read;
 }
 
-int uzmtp_net_send(int sockfd, const unsigned char *b, size_t len) {
+int uzmtp_net_send(_UzmtpSocket *s, const unsigned char *b, size_t len) {
+    return uzmtp_net_send_fd(s->sock, b, len);
+}
+
+int uzmtp_net_send_fd(int sockfd, const unsigned char *b, size_t len) {
     int bytes_sent = 0;
     while (bytes_sent < len) {
 	const int rc =
@@ -93,7 +97,7 @@ int uzmtp_net_send(int sockfd, const unsigned char *b, size_t len) {
 	    break;
 	} /*!<socket closed */
 	else if (rc == -1) {
-		if (errno == EINTR) continue;
+	    if (errno == EINTR) continue;
 	    bytes_sent = -1;
 	    break; /*!<Socket error */
 	} else

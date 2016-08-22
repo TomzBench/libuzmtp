@@ -31,10 +31,13 @@ int uzmtp_tls_connect(_TlsCtx **ctx, _UzmtpSocket *sock) {
 int uzmtp_net_socket(_UzmtpSocket *s) { return s->sock; }
 
 int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
+    return uzmtp_net_recv_fd(s->sock, b, len);
+}
+int uzmtp_net_recv_fd(int sockfd, unsigned char *b, size_t len) {
     int32_t bytes_read = 0;
     while (bytes_read < len) {
 	const int32_t n =
-	    recv(s->sock, (char *)b + bytes_read, len - bytes_read, 0);
+	    recv(sockfd, (char *)b + bytes_read, len - bytes_read, 0);
 	if (n == -1 && errno == EINTR) continue;
 	if (n == -1) return -1;
 	if (n == 0) return bytes_read;
@@ -44,10 +47,13 @@ int uzmtp_net_recv(_UzmtpSocket *s, unsigned char *b, size_t len) {
 }
 
 int uzmtp_net_send(_UzmtpSocket *s, const unsigned char *b, size_t len) {
+    return uzmtp_net_send_fd(s->sock, b, len);
+}
+int uzmtp_net_send_fd(int sockfd, const unsigned char *b, size_t len) {
     size_t bytes_sent = 0;
     while (bytes_sent < len) {
 	const int32_t rc =
-	    send(s->sock, (char *)b + bytes_sent, len - bytes_sent, 0);
+	    send(sockfd, (char *)b + bytes_sent, len - bytes_sent, 0);
 	if (rc == -1 && errno == EINTR) continue;
 	if (rc == -1) return -1;
 	if (rc == 0) break;
@@ -87,7 +93,7 @@ int uzmtp_net_select(int *sock, int nsock, int time) {
 
 void uzmtp_net_close(_UzmtpSocket *s) {
     close(s->sock);
-    if(s->tls) tls_close(&s->tls);
+    if (s->tls) tls_close(&s->tls);
     s->sock = 0;
 }
 
