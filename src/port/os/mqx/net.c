@@ -131,11 +131,11 @@ _TlsCtx *uzmtp_tls_new() {
 
 int _mqx_io_tx(_TlsSocket *s, char *b, int len, void *ctx) {
     ((void)ctx);
-    return uzmtp_net_send_fd(wolfSSL_get_fd(s),(uchar*) b, len);
+    return uzmtp_net_send_fd(wolfSSL_get_fd(s), (uchar *)b, len);
 }
 int _mqx_io_rx(_TlsSocket *s, char *b, int len, void *ctx) {
     ((void)ctx);
-    return uzmtp_net_recv_fd(wolfSSL_get_fd(s),(uchar*) b, len);
+    return uzmtp_net_recv_fd(wolfSSL_get_fd(s), (uchar *)b, len);
 }
 
 //
