@@ -76,6 +76,7 @@ int uzmtp_net_recv_fd(int sockfd, unsigned char *b, size_t len) {
 	    if (n == -1) {
 		uint32_t error = RTCS_geterror(sockfd);
 		if (error == RTCSERR_TCP_TIMED_OUT) continue;
+		else if(error == RTCSERR_TCP_CONN_CLOSING) return -1;
 		break;
 	    } else if (n == 0) {
 		break;
