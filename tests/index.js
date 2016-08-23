@@ -55,7 +55,10 @@ queue.listen(23401).then(function(zmtp) {
     return {
       zmtp: zmtp, // ZMQ port 
       server: server, // TLS proxy port
-      echo: "this is a test" // echo string
+      exe: [
+        ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', 'this is a test'],
+        ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', 'this is a test']
+      ]
     };
   });
 }).then(function(ctx) {
@@ -63,7 +66,7 @@ queue.listen(23401).then(function(zmtp) {
   var deferred = q.defer();
   ctx.response = "";
   ctx.error = "";
-  var client = spawn('valgrind', ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', ctx.echo]);
+  var client = spawn('valgrind', ctx.exe[0]);
   client.on('close', function() {
     deferred.resolve(ctx);
   });
@@ -76,13 +79,14 @@ queue.listen(23401).then(function(zmtp) {
   return deferred.promise;
 }).then(function(ctx) {
   console.log(
-    "\n" +
-    "===============\n\n" +
-    "VALGRIND REPORT:\n%s\n" +
-    "ECHO STRING  : %s\n" +
-    "ECHO RESPONSE: %s\n" +
-    "=============\n",
-    ctx.error, ctx.echo, ctx.response);
+    "\nVALGRIND REPORT:\n" +
+    "===============\n" +
+    "%s\n" +
+    "ECHO REPORT:\n" +
+    "===============\n" +
+    "%s\n" +
+    "%s",
+    ctx.error, ctx.exe[0][2], ctx.response);
   // Kill our processes.
   ctx.server.close();
   ctx.zmtp.close();
