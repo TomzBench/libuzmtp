@@ -14,7 +14,7 @@ var tls = require('tls'),
 
 function TlsTerminate() {};
 TlsTerminate.prototype.listen = function listen(options) {
-  tls.createServer({
+  return tls.createServer({
     key: fs.readFileSync(options.key),
     cert: fs.readFileSync(options.cert)
   }, function(s) {
