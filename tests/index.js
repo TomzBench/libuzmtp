@@ -32,11 +32,10 @@ var queue = new Queue();
 var proxy = new TlsTerminate();
 
 
-// Begin test chain...
+// Begin test...
 queue.listen(23401).then(function(zmtp) {
-  // Create TLS and ZMQ sockets....
+  // Create test fixture...
   return q.fcall(function() {
-    // Backend is up, set up proxy...
     var server = proxy.listen({
       key: "./server_key.pem",
       cert: "./server_cert.pem",
@@ -44,17 +43,19 @@ queue.listen(23401).then(function(zmtp) {
       tcps: 23400
     });
 
-    // Handle zmq.
+    // Echo server...
     zmtp.on("message", function(rid, msg) {
       zmtp.send([rid, msg.toString().toUpperCase()]);
     });
     zmtp.on("error", function(e) {
       console.log(e);
     });
+
+    // Test context...
     return {
-      zmtp: zmtp,
-      server: server,
-      echo: "this is a test"
+      zmtp: zmtp, // ZMQ port 
+      server: server, // TLS proxy port
+      echo: "this is a test" // echo string
     };
   });
 }).then(function(ctx) {
@@ -76,11 +77,11 @@ queue.listen(23401).then(function(zmtp) {
 }).then(function(ctx) {
   console.log(
     "\n" +
-    "===============\n" +
+    "===============\n\n" +
     "VALGRIND REPORT:\n%s\n" +
     "ECHO STRING  : %s\n" +
     "ECHO RESPONSE: %s\n" +
-    "=============",
+    "=============\n",
     ctx.error, ctx.echo, ctx.response);
   // Kill our processes.
   ctx.server.close();
