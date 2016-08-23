@@ -53,33 +53,38 @@ queue.listen(23401).then(function(zmtp) {
     });
     return {
       zmtp: zmtp,
-      server: server
+      server: server,
+      echo: "this is a test"
     };
   });
-}).then(function(servers) {
+}).then(function(ctx) {
   // Test fixture is up... Spawn our client test application.
   var deferred = q.defer();
-  var client = spawn('valgrind', ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', 'this is a test']);
+  ctx.response = "";
+  ctx.error = "";
+  var client = spawn('valgrind', ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', ctx.echo]);
   client.on('close', function() {
-    deferred.resolve(servers);
+    deferred.resolve(ctx);
   });
   client.stdout.on('data', function(data) {
-    var result = data.toString();
-    if (result == 'THIS IS A TEST\n') {
-      console.log("test passed!\n");
-    } else {
-      console.log("test failed!\n");
-      deferred.reject(servers);
-    }
+    ctx.response += data.toString();
   });
   client.stderr.on('data', function(data) {
-    console.log(data.toString());
+    ctx.error += data.toString();
   });
   return deferred.promise;
-}).then(function(servers) {
+}).then(function(ctx) {
+  console.log(
+    "\n" +
+    "===============\n" +
+    "VALGRIND REPORT:\n%s\n" +
+    "ECHO STRING  : %s\n" +
+    "ECHO RESPONSE: %s\n" +
+    "=============",
+    ctx.error, ctx.echo, ctx.response);
   // Kill our processes.
-  servers.server.close();
-  servers.zmtp.close();
+  ctx.server.close();
+  ctx.zmtp.close();
 }).done();
 
 //
