@@ -64,29 +64,40 @@ queue.listen(23401).then(function(zmtp) {
 }).then(function(ctx) {
   // Test fixture is up... Spawn our client test application.
   var deferred = q.defer();
-  ctx.response = "";
-  ctx.error = "";
-  var client = spawn('valgrind', ctx.exe[0]);
-  client.on('close', function() {
-    deferred.resolve(ctx);
-  });
-  client.stdout.on('data', function(data) {
-    ctx.response += data.toString();
-  });
-  client.stderr.on('data', function(data) {
-    ctx.error += data.toString();
-  });
+  ctx.results = [];
+  (function _test(idx) {
+    ctx.results[idx] = {
+      response: '',
+      error: ''
+    }
+    var client = spawn('valgrind', ctx.exe[idx]);
+    client.on('close', function() {
+      if (++idx < ctx.exe.length) _test(idx);
+      else deferred.resolve(ctx);
+      //deferred.resolve(ctx);
+    });
+    client.stdout.on('data', function(data) {
+      //ctx.response += data.toString();
+      ctx.results[idx].response += data.toString();
+    });
+    client.stderr.on('data', function(data) {
+      //ctx.error += data.toString();
+      ctx.results[idx].error += data.toString();
+    });
+  })(0);
   return deferred.promise;
 }).then(function(ctx) {
-  console.log(
-    "\nVALGRIND REPORT:\n" +
-    "===============\n" +
-    "%s\n" +
-    "ECHO REPORT:\n" +
-    "===============\n" +
-    "%s\n" +
-    "%s",
-    ctx.error, ctx.exe[0][2], ctx.response);
+  ctx.results.forEach(function(obj, idx) {
+    console.log(
+      "\nVALGRIND REPORT:\n" +
+      "===============\n" +
+      "%s\n" +
+      "ECHO REPORT:\n" +
+      "===============\n" +
+      "%s\n" +
+      "%s",
+      ctx.results[idx].error, ctx.exe[idx][2], ctx.results[idx].response);
+  });
   // Kill our processes.
   ctx.server.close();
   ctx.zmtp.close();
