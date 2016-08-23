@@ -89,14 +89,14 @@ queue.listen(23401).then(function(zmtp) {
 }).then(function(ctx) {
   ctx.results.forEach(function(obj, idx) {
     console.log(
-      "\nVALGRIND REPORT:\n" +
+      "\nVALGRIND REPORT: (Test %d)\n" +
       "===============\n" +
       "%s\n" +
       "ECHO REPORT:\n" +
       "===============\n" +
       "%s\n" +
       "%s",
-      ctx.results[idx].error, ctx.exe[idx][2], ctx.results[idx].response);
+      idx, ctx.results[idx].error, ctx.exe[idx][2], ctx.results[idx].response);
   });
   // Kill our processes.
   ctx.server.close();
