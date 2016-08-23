@@ -5,6 +5,8 @@
 // applications with various parameters to test the library. uzmtp-client 
 // connects to our test fixture. We compare output from uzmtp-client to verify
 // if test passes.  When test is finished we close test fixture.
+//
+// (Test fixture is capitalize echo server.)
 
 // TODO - Add more logging feedback.  Use config script for ports.
 
@@ -57,19 +59,21 @@ queue.listen(23401).then(function(zmtp) {
 }).then(function(servers) {
   // Test fixture is up... Spawn our client test application.
   var deferred = q.defer();
-  var client = spawn('../programs/uzmtp-client', ['tcp://127.0.0.1:23400', 'this is a test']);
+  var client = spawn('valgrind', ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', 'this is a test']);
   client.on('close', function() {
-    //
+    deferred.resolve(servers);
   });
   client.stdout.on('data', function(data) {
     var result = data.toString();
     if (result == 'THIS IS A TEST\n') {
-      console.log("test passed!");
-      deferred.resolve(servers);
+      console.log("test passed!\n");
     } else {
-      console.log("test failed!");
+      console.log("test failed!\n");
       deferred.reject(servers);
     }
+  });
+  client.stderr.on('data', function(data) {
+    console.log(data.toString());
   });
   return deferred.promise;
 }).then(function(servers) {
