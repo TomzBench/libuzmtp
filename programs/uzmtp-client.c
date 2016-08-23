@@ -43,8 +43,8 @@ int main(int argc, char *argv[]) {
     if (!d) return die_with_error(-1, "memory");
 
     // Optional setup tls...
-    //uzmtp_dealer_use_tls(d, NULL);
-    //uzmtp_dealer_use_server_pem(d, server_cert, strlen((char *)server_cert));
+    uzmtp_dealer_use_tls(d, NULL);
+    uzmtp_dealer_use_server_pem(d, server_cert, strlen((char *)server_cert));
 
     // Connect to rep socket.
     if (uzmtp_dealer_connect_endpoint(d, argv[1])) {
