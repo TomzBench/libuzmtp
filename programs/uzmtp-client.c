@@ -38,9 +38,6 @@ int main(int argc, char *argv[]) {
 	return -1;
     }
 
-    TlsCtx *ctx = uzmtp_dealer_tls_new();
-    uzmtp_dealer_tls_free(&ctx);
-
     // Allocate dealer socket ctx.
     UzmtpDealer *d = uzmtp_dealer_new();
     if (!d) return die_with_error(-1, "memory");
