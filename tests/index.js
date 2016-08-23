@@ -1,12 +1,19 @@
-//
 // index.js
 //
+// This script first creates a server for use as a test fixture for uzmtp 
+// library.  When test fixture sockets are ready, we than spawn uzmtp-client
+// applications with various parameters to test the library. uzmtp-client 
+// connects to our test fixture. We compare output from uzmtp-client to verify
+// if test passes.  When test is finished we close test fixture.
+
+// TODO - Add more logging feedback.  Use config script for ports.
 
 var zmq = require('zmq'),
   TlsTerminate = require('./tls_terminate.js'),
   q = require('q'),
   spawn = require('child_process').spawn;
 
+// Trivial module to manage ZMQ socket...
 function Queue() {};
 Queue.prototype.listen = function(port, cb) {
   var zsock = zmq.socket("router");
@@ -18,11 +25,14 @@ Queue.prototype.listen = function(port, cb) {
   });
 }
 
+// Proxy and ZMQ instances.
 var queue = new Queue();
 var proxy = new TlsTerminate();
 
 
+// Begin test chain...
 queue.listen(23401).then(function(zmtp) {
+  // Create TLS and ZMQ sockets....
   return q.fcall(function() {
     // Backend is up, set up proxy...
     var server = proxy.listen({
@@ -45,7 +55,7 @@ queue.listen(23401).then(function(zmtp) {
     };
   });
 }).then(function(servers) {
-  // Backend started...  Spawn some tests...
+  // Test fixture is up... Spawn our client test application.
   var deferred = q.defer();
   var client = spawn('../programs/uzmtp-client', ['tcp://127.0.0.1:23400', 'this is a test']);
   client.on('close', function() {
