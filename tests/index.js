@@ -56,8 +56,8 @@ queue.listen(23401).then(function(zmtp) {
       zmtp: zmtp, // ZMQ port 
       server: server, // TLS proxy port
       exe: [
-        ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', 'this is a test'],
-        ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', 'this is a test']
+        ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', 'plain-text test'],
+        ['../programs/uzmtp-client', 'tcp://127.0.0.1:23400', 'tls test']
       ]
     };
   });

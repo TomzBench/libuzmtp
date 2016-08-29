@@ -120,6 +120,7 @@ int tls_io_rx(_TlsSocket* tls, char* b, int len, void* ctx) {
     ((void)ctx);
     while (bytes_read < len) {
 	const int32_t n = recv(sd, (char*)b + bytes_read, len - bytes_read, 0);
+	printf("errcode: %d\n", errno);
 	if (n == -1 && errno == EINTR) continue;
 	if (n == -1) return -1;
 	if (n == 0) return bytes_read;
