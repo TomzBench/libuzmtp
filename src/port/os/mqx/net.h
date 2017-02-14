@@ -14,8 +14,6 @@ extern "C" {
 #include <rtcs.h>
 #include <ipcfg.h>
 #include <mutex.h>
-#define uzmtp_malloc _mem_alloc_system
-#define uzmtp_free _mem_free
 #define assert(x)
 
 #ifdef UZMTP_USE_WOLFSSL
