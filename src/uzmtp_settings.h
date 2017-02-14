@@ -41,7 +41,7 @@ extern "C" {
 #include <errno.h>
 #define SOCK_ERR RTCS_geterror()
 #define MSG_DONTWAIT RTCS_MSG_BLOCK
-#define uzmtp_malloc _mem_alloc_system
+#define uzmtp_malloc _mem_alloc
 #define uzmtp_free _mem_free
 #define assert(x) 
 #endif
