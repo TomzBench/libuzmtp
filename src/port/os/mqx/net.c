@@ -75,8 +75,11 @@ int uzmtp_net_recv_fd(int sockfd, unsigned char *b, size_t len) {
 			       (len - bytes_read), MSG_DONTWAIT);
 	    if (n == -1) {
 		uint32_t error = RTCS_geterror(sockfd);
-		if (error == RTCSERR_TCP_TIMED_OUT) continue;
-		else if(error == RTCSERR_TCP_CONN_CLOSING) return -1;
+		if (error == RTCSERR_TCP_TIMED_OUT) {
+		    continue;
+		} else if (error == RTCSERR_TCP_CONN_CLOSING) {
+		    return -1;
+		}
 		break;
 	    } else if (n == 0) {
 		break;
@@ -87,7 +90,7 @@ int uzmtp_net_recv_fd(int sockfd, unsigned char *b, size_t len) {
 	    return bytes_read > 0 ? bytes_read : -1;
 	}
     }
-    return bytes_read;
+    return bytes_read > 0 ? bytes_read : -1;
 }
 
 int uzmtp_net_send(_UzmtpSocket *s, const unsigned char *b, size_t len) {
