@@ -20,7 +20,7 @@ int uzmtp_net_connect(_UzmtpSocket *s, const char *ip, int port) {
     uint32_t option = 25000;
     is_err |= setsockopt(s->sock, SOL_TCP, OPT_SEND_TIMEOUT, &option,  //
 			 sizeof(option));
-    option = 2750;
+    option = 6000;
     is_err |= setsockopt(s->sock, SOL_TCP, OPT_CONNECT_TIMEOUT, &option,
 			 sizeof(option));
     option = 25000;
