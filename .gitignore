@@ -10,7 +10,6 @@
 *.lo
 
 #libatx
-*.txt
 *.pem
 
 #cscope
@@ -19,6 +18,10 @@
 
 #latex
 doc/build
+
+#cmake
+build
+target
 
 *.bin
 *.ycm_extra_conf.pyc

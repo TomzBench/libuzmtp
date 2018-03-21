@@ -68,16 +68,12 @@ flags = [
 '/usr/include',
 '-I',
 '/usr/local/include',
-'-isystem',
-'/usr/local/include/wolfssl',
-'-isystem',
-'/usr/local/include/wolfssl/wolfcrypt',
 '-I',
-'./src',
+'./build/czmq-project-prefix/src/czmq-project/include/',
 '-I',
-'./src/port',
+'./build/zmq-project-prefix/src/zmq-project/include/',
 '-I',
-'./include'
+'./src'
 ]
 
 

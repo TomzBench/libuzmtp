@@ -1,5 +1,7 @@
-/*
- * uzmtp_settings.h
+/**
+ * @file uzmtp.h
+ *
+ * @brief uzmtp library public api prototypes.
  */
 
 #ifndef UZMTP_H_
@@ -9,135 +11,35 @@
 extern "C" {
 #endif
 
-#include "uzmtp_settings.h"
+#include "uzmtp_types.h"
 
-typedef struct _UzmtpDealer UzmtpDealer;
-typedef struct _UzmtpMsg UzmtpMsg;
-typedef struct _UzmtpSocket UzmtpSocket;
-typedef struct _TlsCtx TlsCtx;
+// uzmtp_msg_...()
+uzmtp_msg_s* uzmtp_msg_new(uint8_t flags, size_t size);
+uzmtp_msg_s* uzmtp_msg_new_from_data(uint8_t, uint8_t** data_p, size_t size);
+uzmtp_msg_s* uzmtp_msg_new_from_const_data(uint8_t flags, void*, size_t);
+void uzmtp_msg_destroy(uzmtp_msg_s** self_p);
+uint8_t uzmtp_msg_flags(uzmtp_msg_s* self);
+void uzmtp_msg_set_more(uzmtp_msg_s* self);
+void uzmtp_msg_clr_more(uzmtp_msg_s* self);
+int uzmtp_msg_is_more(uzmtp_msg_s* self);
+int uzmtp_msg_is_large(uzmtp_msg_s* self);
+uint8_t* uzmtp_msg_data(uzmtp_msg_s* self);
+size_t uzmtp_msg_size(uzmtp_msg_s* self);
+void* uzmtp_msg_next(uzmtp_msg_s* self);
 
-/**
- * @brief Create a new instance of a dealer socket. Return object required for
- * rest of API usage. Caller must free dealer with uzmtp_dealer_free().
- *
- * @return Heap pointer if successful. NULL if error.
- */
-extern UzmtpDealer *uzmtp_dealer_new();
-
-/**
- * @brief Free instance of dealer class object from heap.  Once dealer is freed
- * from heap, the callers reference to heap is set to NULL.
- *
- * @param dealer_p Address of pointer to dealer socket.
- */
-extern void uzmtp_dealer_free(UzmtpDealer **);
-
-/**
- * @brief Install TLS behavior for all socket operations.
- *
- * @param dealer created with uzmtp_dealer_new() api.
- * @param [optional] Shared TLS context or NULL if only need one socket.
- *
- * @return 0 Success, -1 error
- */
-extern int uzmtp_dealer_use_tls(UzmtpDealer *, TlsCtx **);
-
-/**
- * @brief
- *
- * @param
- * @param
- * @param size_t
- *
- * @return
- */
-extern int uzmtp_dealer_use_server_pem(UzmtpDealer *, const unsigned char *,
-				       size_t);
-
-/**
- * @brief
- *
- * @param
- * @param
- * @param size_t
- *
- * @return
- */
-extern int uzmtp_dealer_use_client_pem(UzmtpDealer *, const char *, size_t);
-
-/**
- * @brief Connect to a remote zmtp listener.
- *
- * @param dealer Pointer to heap object of dealer socket created with
- * uzmtp_dealer_new()
- * @param endpoint endpoint string in the format "tcp://127.0.0.1:5555"
- *
- * @return 0 if successful.
- */
-extern int uzmtp_dealer_connect_endpoint(UzmtpDealer *, const char *);
-
-/**
- * @brief Connects to a remote zmtp listener.
- *
- * @param dealer Pointer to heap object of dealer socket created with
- * uzmtp_dealer_new().
- * @param host ip string in format "127.0.0.1".
- * @param port port number, IE 5555
- *
- * @return 0 if successful.
- */
-extern int uzmtp_dealer_connect(UzmtpDealer *self, const char *host, int port);
-
-/**
- * @brief Send message over network.
- *
- * @param dealer Pointer to heap object of dealer socket created with
- * uzmtp_dealer_new().
- * @param msg A message created from uzmtp_msg.c api.
- * (See:
- * 	uzmtp_msg_new()
- * 	uzmtp_msg_from_data()
- * 	uzmtp_msg_from_const_data()
- * )
- *
- * @return 0 if successful.
- */
-extern int uzmtp_dealer_send(UzmtpDealer *, UzmtpMsg *);
-
-extern UzmtpMsg *uzmtp_dealer_recv(UzmtpDealer *);
-
-/**
- * @brief Poll socket for activity.
- *
- * @param dealer Pointer to heap object of dealer socket created with
- * uzmtp_dealer_new().
- * @param time How long to block and wait for socket activity.
- *
- * @return file descriptor if there is socket activity.  0 if no socket
- * activity.
- */
-extern int uzmtp_dealer_poll(UzmtpDealer *self, int time);
-
-extern int uzmtp_dealer_socket(UzmtpDealer *);
-
-extern TlsCtx *uzmtp_dealer_tls_new();
-extern void uzmtp_dealer_tls_free(TlsCtx **ctx_p);
-
-enum EUZMTP_MSG;
-extern UzmtpMsg *uzmtp_msg_new(uint8_t flags, size_t size);
-extern UzmtpMsg *uzmtp_msg_from_data(uint8_t flags, uint8_t **data_p,
-				     size_t size);
-extern UzmtpMsg *uzmtp_msg_from_const_data(uint8_t flags, void *data,
-					   size_t size);
-extern void uzmtp_msg_destroy(UzmtpMsg **self_p);
-extern int uzmtp_msg_send(UzmtpMsg *msg, UzmtpSocket *sock);
-extern UzmtpMsg *uzmtp_msg_recv(UzmtpSocket *);
-extern uint8_t uzmtp_msg_flags(UzmtpMsg *self);
-extern void uzmtp_msg_set_more(UzmtpMsg *self);
-extern void uzmtp_msg_clr_more(UzmtpMsg *self);
-extern bool uzmtp_msg_more(UzmtpMsg *self);
-extern uint8_t *uzmtp_msg_data(UzmtpMsg *self);
-extern size_t uzmtp_msg_size(UzmtpMsg *self);
+// uzmtp_dealer_...()
+uzmtp_dealer_s* uzmtp_dealer_new(uzmtp_dealer_settings* settings);
+void uzmtp_dealer_destroy(uzmtp_dealer_s** dealer_p);
+void uzmtp_dealer_context_set(uzmtp_dealer_s* dealer, void* context);
+void* uzmtp_dealer_context_get(uzmtp_dealer_s* dealer);
+EUZMTP_STATE uzmtp_dealer_state_get(uzmtp_dealer_s* dealer);
+uzmtp_connection* uzmtp_dealer_connection_get(uzmtp_dealer_s*);
+uint8_t uzmtp_dealer_ready(uzmtp_dealer_s*);
+uzmtp_msg_s* uzmtp_dealer_pop_incoming(uzmtp_dealer_s*);
+uint32_t uzmtp_dealer_incoming_count(uzmtp_dealer_s*);
+int uzmtp_dealer_connect(uzmtp_dealer_s* dealer, uzmtp_connection*);
+int uzmtp_dealer_parse(uzmtp_dealer_s* d, const uint8_t* bytes, uint32_t sz);
+int uzmtp_dealer_send(uzmtp_dealer_s* d, uzmtp_msg_s** msg);
 
 #ifdef __cplusplus
 } /* extern "C" */

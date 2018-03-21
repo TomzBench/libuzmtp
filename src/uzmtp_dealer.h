@@ -9,35 +9,41 @@
 extern "C" {
 #endif
 
-#include "os/net.h"
 #include "uzmtp_msg.h"
+#include "uzmtp_types.h"
 
-typedef int (*tx_fn)(_UzmtpSocket *, const unsigned char *, size_t);
-typedef int (*rx_fn)(_UzmtpSocket *, unsigned char *, size_t);
+// Main context
+typedef struct
+{
+    uzmtp_connection* connection;
+    uzmtp_dealer_settings* settings;
+    EUZMTP_STATE state;
+    void* context;
+    int32_t n_incoming;
+    uint64_t b;
+    uint8_t ready;
+    uint8_t curr_flags;
+    uint64_t curr_size;
+    uzmtp_msg_s* curr_msg;
+    uzmtp_msg_s* incoming;
+    uzmtp_msg_s* tail;
+} uzmtp_dealer__s;
 
-typedef struct {
-    _UzmtpSocket conn;
-    _TlsCtx *ctx;      /* Simplify API if user is only using single TLS ctx */
-    _TlsCtx **ctx_ref; /* share ctx when need more than 1 tls dealer socket */
-    tx_fn tx;	  /*!< tls/net tx method */
-    rx_fn rx;	  /*!< tls/net rx method */
-} _UzmtpDealer;
-
-// Public
-_UzmtpDealer *uzmtp_dealer_new();
-void uzmtp_dealer_free(_UzmtpDealer **);
-int uzmtp_dealer_use_tls(_UzmtpDealer *, _TlsCtx **);
-int uzmtp_dealer_use_server_pem(_UzmtpDealer *, const uchar *, size_t);
-int uzmtp_dealer_use_client_pem(_UzmtpDealer *, const uchar *, size_t);
-int uzmtp_dealer_connect_endpoint(_UzmtpDealer *, const char *);
-int uzmtp_dealer_connect(_UzmtpDealer *self, const char *host, int port);
-int uzmtp_dealer_send(_UzmtpDealer *, _UzmtpMsg *);
-_UzmtpMsg *uzmtp_dealer_recv(_UzmtpDealer *);
-int uzmtp_dealer_poll(_UzmtpDealer *self, int time);
-int uzmtp_dealer_socket(_UzmtpDealer *);
-
-_TlsCtx *uzmtp_dealer_tls_new();
-void uzmtp_dealer_tls_free(_TlsCtx **ctx_p);
+// Constructors
+uzmtp_dealer__s* uzmtp_dealer_new(uzmtp_dealer_settings* settings);
+void uzmtp_dealer_destroy(uzmtp_dealer__s** dealer_p);
+// Setters / Getters
+void uzmtp_dealer_context_set(uzmtp_dealer__s* dealer, void* context);
+void* uzmtp_dealer_context_get(uzmtp_dealer__s* dealer);
+uzmtp_connection* uzmtp_dealer_connection_get(uzmtp_dealer__s* dealer);
+EUZMTP_STATE uzmtp_dealer_state_get(uzmtp_dealer__s* dealer);
+uint8_t uzmtp_dealer_ready(uzmtp_dealer__s*);
+uzmtp_msg_s* uzmtp_dealer_pop_incoming(uzmtp_dealer__s* d);
+uint32_t uzmtp_dealer_incoming_count(uzmtp_dealer__s* d);
+// Other methods
+int uzmtp_dealer_connect(uzmtp_dealer__s* dealer, uzmtp_connection*);
+int uzmtp_dealer_parse(uzmtp_dealer__s* d, const uint8_t* bytes, uint32_t sz);
+int uzmtp_dealer_send(uzmtp_dealer__s* d, uzmtp_msg__s** msg_p);
 
 #ifdef __cplusplus
 } /* extern "C" */
