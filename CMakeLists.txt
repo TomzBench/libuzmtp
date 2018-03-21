@@ -37,7 +37,7 @@ add_subdirectory(test/integration)
 # Exclude test runners from the coverage report
 set(COVERAGE_EXCLUDES 'test/*')
 SETUP_TARGET_FOR_COVERAGE(
-    NAME test_coverage 
+    NAME test-coverage 
     EXECUTABLE 
 	COMMAND zmtp-test
     )
