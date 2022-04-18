@@ -25,3 +25,5 @@ target
 
 *.bin
 *.ycm_extra_conf.pyc
+
+external

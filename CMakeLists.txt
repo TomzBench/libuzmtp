@@ -1,43 +1,35 @@
 #------------------------------------------------------------------------------
 # Top-level CMake file for libuzmtp
 #------------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.20)
+project(libuzmtp)
 
-# Testing properties (cmocka WITH_STATIC_LIB)
-enable_testing()
-include(CTest)
+#------------------------------------------------------------------------------
+# Helpful SETS
+#------------------------------------------------------------------------------
+set(EXTERNAL_DIR "${CMAKE_SOURCE_DIR}/external")
+set(DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/dl")
+set(CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULES_DIR "${CMAKE_SOURCE_DIR}/cmake/modules")
+set(CMAKE_EXTERNAL "${CMAKE_SOURCE_DIR}/cmake/external")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Debug only builds of linux. On target hardware builds can optimize and do not use cmake
-set(CMAKE_BUILD_TYPE Debug)
-
-# TODO - enable pedantic builds on pedantic branch
-#set(CMAKE_C_FLAGS "-Wall -Werror -Wpedantic -std=c11")
-set(CMAKE_C_FLAGS "-Wall -Werror")
-
-# external dependency for etst
-set(WITH_STATIC_LIB ON CACHE BOOL "Build static lib" FORCE)
-
-# other base includes includes
+#------------------------------------------------------------------------------
+# helper modules
+#------------------------------------------------------------------------------
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
-include(cmake/CodeCoverage.cmake)
-# TODO - only build libzmq and cmq if tests are enabled
-include(cmake/cmocka.cmake)
-include(cmake/czmq.cmake)
-include(cmake/libzmq.cmake)
+include(${CMAKE_MODULES_DIR}/MakeAbsolute.cmake)
+include(${CMAKE_MODULES_DIR}/ExtractChecked.cmake)
+include(${CMAKE_DIR}/supported_platforms.cmake)
 
-APPEND_COVERAGE_COMPILER_FLAGS()
+#------------------------------------------------------------------------------
+# Package options
+#------------------------------------------------------------------------------
+option(UZMTP_ENABLE_TESTING "build libuzmtp tests" ON)
+set(UZMTP_PLATFORM "ZEPHYR" CACHE STRING "Host operating system [${SUPPORTED_PLATFORMS}]")
 
-# build libraries and their unit tests
-add_subdirectory(src)
+if(UZMTP_PLATFORM STREQUAL ZEPHYR)
+elseif(UZMTP_PLATFORM STREQUAL LINUX)
+    include(${CMAKE_DIR}/build_linux.cmake)
+endif()
 
-# build test apps
-add_subdirectory(test/unit)
-add_subdirectory(test/integration)
-
-# Exclude test runners from the coverage report
-set(COVERAGE_EXCLUDES 'test/*')
-SETUP_TARGET_FOR_COVERAGE(
-    NAME test-coverage 
-    EXECUTABLE 
-	COMMAND zmtp-test
-    )

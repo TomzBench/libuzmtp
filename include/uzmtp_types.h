@@ -11,11 +11,7 @@
 extern "C" {
 #endif
 
-#ifndef UZMTP_CONFIG
-#define UZMTP_CONFIG "uzmtp_config_default.h"
-#endif
-
-#include UZMTP_CONFIG
+#include UZMTP_PLATFORM_HEADER
 
 typedef struct uzmtp_dealer__s uzmtp_dealer_s;
 typedef struct uzmtp_msg__s uzmtp_msg_s;
@@ -50,8 +46,7 @@ typedef int (*uzmtp_recv_fn)(uzmtp_dealer_s*, uint32_t);
 typedef void (*uzmtp_error_fn)(uzmtp_dealer_s*, EUZMTP_ERROR);
 
 // Context callbacks
-typedef struct
-{
+typedef struct {
     uzmtp_want_write_fn want_write;
     uzmtp_recv_fn on_recv;
     uzmtp_error_fn on_error;

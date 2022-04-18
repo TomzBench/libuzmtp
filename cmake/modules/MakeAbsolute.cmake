@@ -1,0 +1,6 @@
+function (make_absolute path result)
+  if(NOT IS_ABSOLUTE "${path}")
+    get_filename_component(TMP "${path}" ABSOLUTE)
+    set("${result}" "${TMP}" PARENT_SCOPE)
+  endif()
+endfunction()

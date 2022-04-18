@@ -1,5 +1,5 @@
-#ifndef UZMTP_CONFIG_DEFAULT
-#define UZMTP_CONFIG_DEFAULT
+#ifndef UZMTP_PLATFORM_LINUX
+#define UZMTP_PLATFORM_LINUX
 
 #ifndef UZMTP_MALLOC_FN
 #define uzmtp_malloc malloc
