@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include <uzmtp.h>
+#include <uzmtp/uzmtp.h>
 
 #include <setjmp.h>
 

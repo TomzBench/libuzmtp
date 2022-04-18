@@ -18,17 +18,17 @@ set(HEADERS
 # Add public headers
 #------------------------------------------------------------------------------
 set(PUBLIC_HEADERS
-    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp_types.h
-    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp.h
-    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp_platform.h
+    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp/uzmtp_types.h
+    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp/uzmtp.h
+    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp/uzmtp_platform.h
 )
 
 #------------------------------------------------------------------------------
 # Generate uzmtp_platform.h for zephyr target
 #------------------------------------------------------------------------------
 configure_file(
-    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp_platform_zephyr.h.in
-    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp_platform.h
+    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp/uzmtp_platform_zephyr.h.in
+    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/include/uzmtp/uzmtp_platform.h
 )
 
 #------------------------------------------------------------------------------

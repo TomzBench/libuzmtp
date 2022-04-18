@@ -18,17 +18,17 @@ set(HEADERS
 # Add public headers
 #------------------------------------------------------------------------------
 set(PUBLIC_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp_types.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp_platform.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp/uzmtp_types.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp/uzmtp.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp/uzmtp_platform.h
 )
 
 #------------------------------------------------------------------------------
 # Generate uzmtp_platform.h for linux target
 #------------------------------------------------------------------------------
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp_platform_linux.h.in
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp_platform.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp/uzmtp_platform_linux.h.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp/uzmtp_platform.h
 )
 
 #------------------------------------------------------------------------------

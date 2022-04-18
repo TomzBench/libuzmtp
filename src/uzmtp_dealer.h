@@ -10,7 +10,6 @@ extern "C" {
 #endif
 
 #include "uzmtp_msg.h"
-#include "uzmtp_types.h"
 
 // Main context
 typedef struct

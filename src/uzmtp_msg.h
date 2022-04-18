@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include "uzmtp_types.h"
+#include "uzmtp/uzmtp_types.h"
 
 #define UZMTP_ANYSIZE_ARRAY 1
 typedef struct uzmtp_msg__s

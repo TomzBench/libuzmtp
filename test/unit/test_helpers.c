@@ -1,4 +1,4 @@
-#include <uzmtp.h>
+#include <uzmtp/uzmtp.h>
 
 #include "test_helpers.h"
 
