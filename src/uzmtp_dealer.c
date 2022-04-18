@@ -6,12 +6,12 @@
 
 #define UERROR(dealer, x)                                                      \
     do {                                                                       \
-        dealer->settings->on_error((void*)dealer, x);                          \
         dealer->state = UZMTP_NULL;                                            \
         dealer->ready = 0;                                                     \
         free_incoming(dealer);                                                 \
         d->b = 0;                                                              \
         if (dealer->curr_msg) uzmtp_msg_destroy(&dealer->curr_msg);            \
+        dealer->settings->on_error((void*)dealer, x);                          \
     } while (0)
 
 typedef struct
@@ -129,9 +129,9 @@ start:
             remaining = 64 - d->b;
             c = sz > remaining ? remaining : sz;
             sz -= c;
-            while ((c) && ((d->b == 10 && (!(*bytes >= 3))) ||
-                           (d->b == 11 && (!(*bytes >= 0))) ||
-                           (*bytes == ptr[d->b]))) {
+            while ((c) && ((d->b == 10 && ((*bytes >= 3))) ||
+                           (d->b == 11 && ((*bytes >= 0))) ||
+                           (d->b > 1 && d->b < 9) || (*bytes == ptr[d->b]))) {
                 bytes++;
                 d->b++;
                 c--;
