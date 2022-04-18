@@ -1,0 +1,5 @@
+menuconfig LIBUZMTP
+	bool "libuzmtp ZMQ support"
+	help
+		This option enables a lightweight ZMQ stack that supports the dealer 
+		protocol.

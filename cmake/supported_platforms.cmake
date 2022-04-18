@@ -1,4 +1,4 @@
-FILE(GLOB PLATFORM_HEADERS "${CMAKE_SOURCE_DIR}/include/uzmtp_platform_*.h")
+FILE(GLOB PLATFORM_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/uzmtp_platform_*.h")
 foreach(HEADER ${PLATFORM_HEADERS})
 	MESSAGE(STATUS "Found platform header: ${HEADER}")
 	STRING(REGEX MATCH "uzmtp_platform_[a-z]+" RES ${HEADER})

@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include UZMTP_PLATFORM_HEADER
+#include "uzmtp_platform.h"
 
 typedef struct uzmtp_dealer__s uzmtp_dealer_s;
 typedef struct uzmtp_msg__s uzmtp_msg_s;

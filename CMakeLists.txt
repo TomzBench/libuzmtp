@@ -7,11 +7,11 @@ project(libuzmtp)
 #------------------------------------------------------------------------------
 # Helpful SETS
 #------------------------------------------------------------------------------
-set(EXTERNAL_DIR "${CMAKE_SOURCE_DIR}/external")
-set(DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/dl")
-set(CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
-set(CMAKE_MODULES_DIR "${CMAKE_SOURCE_DIR}/cmake/modules")
-set(CMAKE_EXTERNAL "${CMAKE_SOURCE_DIR}/cmake/external")
+set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
+set(DOWNLOAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dl")
+set(CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+set(CMAKE_EXTERNAL "${CMAKE_CURRENT_SOURCE_DIR}/cmake/external")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ option(UZMTP_ENABLE_TESTING "build libuzmtp tests" ON)
 set(UZMTP_PLATFORM "ZEPHYR" CACHE STRING "Host operating system [${SUPPORTED_PLATFORMS}]")
 
 if(UZMTP_PLATFORM STREQUAL ZEPHYR)
+    include(${CMAKE_DIR}/build_zephyr.cmake)
 elseif(UZMTP_PLATFORM STREQUAL LINUX)
     include(${CMAKE_DIR}/build_linux.cmake)
 endif()
-
