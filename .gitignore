@@ -27,4 +27,4 @@ target
 *.ycm_extra_conf.pyc
 
 external/*
-include/uzmtp_platform.h
+include/uzmtp/uzmtp_platform.h
