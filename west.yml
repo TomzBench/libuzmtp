@@ -1,0 +1,12 @@
+# Example T2 west.yml, using manifest imports.
+manifest:
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: v3.0.0
+      import: true
+  self:
+    path: libuzmtp
