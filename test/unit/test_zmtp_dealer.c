@@ -263,7 +263,7 @@ test_zmtp_dealer_connect_recv_greeting_error(void** context_p)
 
     // Parse incoming malformed greeting and verify error
     test_print_greeting(greeting);
-    greeting[3] = 0x02; // junk
+    greeting[9] = 0x02; // junk
     err = uzmtp_dealer_parse(d, greeting, sizeof(greeting));
     assert_int_equal(err, -1);
     assert_int_equal(UZMTP_NULL, uzmtp_dealer_state_get(d));
