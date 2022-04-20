@@ -2,12 +2,13 @@
 #include <zmq.h>
 
 #include <sys/socket.h>
+#include <assert.h>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <unistd.h>
 
 // break loop when integration test is over
-static int g_interrupted = false, test_passed = 0;
-
-// remote echo task
-extern zactor_fn echo_task;
+static int test_passed = 0;
 
 // demo callbacks
 int
@@ -49,9 +50,6 @@ demo_callback_on_recv(uzmtp_dealer_s* dealer, uint32_t n)
     // Arrive here then test passes
     test_passed = pass == 2 ? 1 : 0;
 
-    // Demo finished, exit main
-    g_interrupted = true;
-
     return 0;
 }
 
@@ -77,14 +75,9 @@ main(int argc, char* argv[])
     struct sockaddr_in addr;
     int connection, err, sz, echo_sent = 0;
     uzmtp_dealer_s* dealer;
-    zactor_t* actor;
     uzmtp_msg_s* msg;
     const char* ip = "127.0.0.1";
-    uint32_t port = 8888;
-
-    // Create echo server task
-    actor = zactor_new(echo_task, NULL);
-    if (!actor) return -1;
+    uint32_t port = 33558;
 
     // Create a socket
     memset(&addr, 0, sizeof(addr));
@@ -94,14 +87,12 @@ main(int argc, char* argv[])
     connection = socket(AF_INET, SOCK_STREAM, 0);
     if (connection < 0) {
         close(connection);
-        zactor_destroy(&actor);
         return -1;
     }
 
     // connect to zmq echo server
     if (connect(connection, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
         close(connection);
-        zactor_destroy(&actor);
         return -1;
     }
 
@@ -109,7 +100,6 @@ main(int argc, char* argv[])
     dealer = uzmtp_dealer_new(&demo_settings);
     if (!dealer) {
         close(connection);
-        zactor_destroy(&actor);
         return -1;
     }
 
@@ -118,11 +108,10 @@ main(int argc, char* argv[])
     if (err) {
         uzmtp_dealer_destroy(&dealer);
         close(connection);
-        zactor_destroy(&actor);
         return -1;
     }
 
-    while (!g_interrupted) {
+    while (!test_passed) {
         if (uzmtp_dealer_ready(dealer) && !echo_sent) {
             // Send frames echo server, expect HELLO WORLD in our recv callback
             echo_sent = 1;
@@ -145,7 +134,6 @@ main(int argc, char* argv[])
 
     uzmtp_dealer_destroy(&dealer);
     close(connection);
-    zactor_destroy(&actor);
     assert(test_passed == 1);
     return test_passed ? 0 : -1;
 }

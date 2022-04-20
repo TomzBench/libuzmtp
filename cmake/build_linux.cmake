@@ -72,7 +72,6 @@ if(UZMTP_ENABLE_TESTING)
     # Add integration test
     add_executable(uzmtp-test-integration
         ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/main.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/echo-fixture.c
     )
     target_link_libraries(uzmtp-test-integration zmq-static uzmtp ${CMAKE_THREAD_LIBS_INIT} rt)
     add_test(NAME uzmtp-test-integration COMMAND uzmtp-test-integration)

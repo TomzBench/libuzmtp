@@ -23,6 +23,9 @@ doc/build
 build
 target
 
+#node
+node_modules
+
 *.bin
 *.ycm_extra_conf.pyc
 
