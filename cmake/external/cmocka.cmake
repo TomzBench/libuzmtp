@@ -17,6 +17,7 @@ ExternalProject_Add(cmocka-project
 	)
 
 ExternalProject_Get_Property(cmocka-project install_dir)
+FILE(MAKE_DIRECTORY "${install_dir}/include")
 set(cmocka_LIBRARY ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}cmocka-static${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(cmocka_INCLUDE_DIR ${install_dir}/include)
 
