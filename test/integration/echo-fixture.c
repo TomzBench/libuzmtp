@@ -1,4 +1,4 @@
-#include "czmq.h"
+#include "zmq.h"
 #include <ctype.h>
 
 int do_echo(zsock_t* sock, zmsg_t** msg_p);

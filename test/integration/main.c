@@ -1,5 +1,5 @@
-#include <czmq.h>
-#include <uzmtp.h>
+#include <uzmtp/uzmtp.h>
+#include <zmq.h>
 
 #include <sys/socket.h>
 

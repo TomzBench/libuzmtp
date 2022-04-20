@@ -53,17 +53,27 @@ if(UZMTP_ENABLE_TESTING)
         include(${CMAKE_MODULES_DIR}/CodeCoverage.cmake)
     endif()
     include("${CMAKE_EXTERNAL}/cmocka.cmake")
+    include("${CMAKE_EXTERNAL}/libzmq.cmake")
     enable_testing()
     include(CTest)
 
-    add_executable(uzmtp-test
+    # Add unit tests
+    add_executable(uzmtp-test-unit
         ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/main.c
         ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test_helpers.c
         ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test_helpers.h
         ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test_zmtp_dealer.c
         ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test_zmtp_msg.c
     )
-    target_link_libraries(uzmtp-test uzmtp cmocka)
-    install(TARGETS uzmtp-test DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-    add_test(NAME uzmtp-test COMMAND uzmtp-test)
+    target_link_libraries(uzmtp-test-unit uzmtp cmocka)
+    install(TARGETS uzmtp-test-unit DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    add_test(NAME uzmtp-test-unit COMMAND uzmtp-test-unit)
+
+    # Add integration test
+    add_executable(uzmtp-test-integration
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/main.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/echo-fixture.c
+    )
+    target_link_libraries(uzmtp-test-integration zmq-static uzmtp ${CMAKE_THREAD_LIBS_INIT} rt)
+    add_test(NAME uzmtp-test-integration COMMAND uzmtp-test-integration)
 endif()
