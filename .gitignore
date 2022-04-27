@@ -26,6 +26,8 @@ target
 #node
 node_modules
 
+nohup.out
+
 *.bin
 *.ycm_extra_conf.pyc
 

@@ -31,7 +31,7 @@ demo_callback_on_recv(uzmtp_dealer_s* dealer, uint32_t n)
     msg = uzmtp_dealer_pop_incoming(dealer);
     if (msg) {
         if (((uzmtp_msg_size(msg) == 5)) &&
-            (!memcmp(uzmtp_msg_data(msg), "HELLO", 5))) {
+            (!memcmp(uzmtp_msg_data(msg), "HELLO", 5))) {   
             pass++;
         }
         uzmtp_msg_destroy(&msg);

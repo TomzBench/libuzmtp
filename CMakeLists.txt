@@ -7,6 +7,7 @@ project(libuzmtp)
 #------------------------------------------------------------------------------
 # Helpful SETS
 #------------------------------------------------------------------------------
+set(FIXTURE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/test/integration/fixture")
 set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external")
 set(DOWNLOAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dl")
 set(CMAKE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

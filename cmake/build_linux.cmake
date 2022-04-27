@@ -57,7 +57,14 @@ if(UZMTP_ENABLE_TESTING)
     enable_testing()
     include(CTest)
 
-    # Add unit tests
+    # build test fixxture
+    add_custom_command(
+        OUTPUT "${FIXTURE_DIR}/node_modules"
+        COMMAND npm install
+        WORKING_DIRECTORY "${FIXTURE_DIR}")
+    add_custom_target(node_modules DEPENDS "${FIXTURE_DIR}/node_modules")
+
+    # Build unit test exe
     add_executable(uzmtp-test-unit
         ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/main.c
         ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test_helpers.c
@@ -67,12 +74,17 @@ if(UZMTP_ENABLE_TESTING)
     )
     target_link_libraries(uzmtp-test-unit uzmtp cmocka)
     install(TARGETS uzmtp-test-unit DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-    add_test(NAME uzmtp-test-unit COMMAND uzmtp-test-unit)
 
-    # Add integration test
+    # Build integration test exe
     add_executable(uzmtp-test-integration
         ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/main.c
     )
     target_link_libraries(uzmtp-test-integration zmq-static uzmtp ${CMAKE_THREAD_LIBS_INIT} rt)
+
+    # Add tests
+    add_test(NAME fixtureSetup COMMAND ${CMAKE_COMMAND} -P ${FIXTURE_DIR}/run.cmake)
+    add_test(NAME uzmtp-test-unit COMMAND uzmtp-test-unit)
     add_test(NAME uzmtp-test-integration COMMAND uzmtp-test-integration)
+    set_tests_properties(fixtureSetup PROPERTIES FIXTURES_SETUP Fixture)
+    set_tests_properties(uzmtp-test-integration PROPERTIES FIXTURES_REQUIRED Fixture)
 endif()
