@@ -13,7 +13,6 @@ s.on("message", function toUpper(id, hello, world) {
     Buffer.from(hello).toString().toUpperCase(),
     Buffer.from(world).toString().toUpperCase(),
   ]);
-  i++;
 });
 
 if (command) {

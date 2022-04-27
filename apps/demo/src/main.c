@@ -9,8 +9,8 @@
 
 #include <uzmtp/uzmtp.h>
 
-#define MAX_BUF_LEN 64
-#define STACK_SIZE 1024
+#define MAX_BUF_LEN 1024
+#define STACK_SIZE 4096
 
 #if defined(CONFIG_DEMO_REMOTE_IPV4)
 #define SERVER CONFIG_DEMO_IPV4
@@ -100,6 +100,7 @@ main(void)
     ret = uzmtp_dealer_connect(dealer, &fd);
     if (ret) {
         LOG_ERR("Failed to connect to router socket");
+        uzmtp_dealer_destroy(&dealer);
         close(fd);
         exit(-1);
     }
