@@ -1,14 +1,14 @@
 #include <uzmtp/uzmtp.h>
 #include <zmq.h>
 
-#include <sys/socket.h>
-#include <assert.h>
 #include <arpa/inet.h>
+#include <assert.h>
 #include <stdio.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 // break loop when integration test is over
-static int test_passed = 0;
+static int test_passed = 0, test_completed = 0;
 
 // demo callbacks
 int
@@ -31,7 +31,7 @@ demo_callback_on_recv(uzmtp_dealer_s* dealer, uint32_t n)
     msg = uzmtp_dealer_pop_incoming(dealer);
     if (msg) {
         if (((uzmtp_msg_size(msg) == 5)) &&
-            (!memcmp(uzmtp_msg_data(msg), "HELLO", 5))) {   
+            (!memcmp(uzmtp_msg_data(msg), "HELLO", 5))) {
             pass++;
         }
         uzmtp_msg_destroy(&msg);
@@ -47,7 +47,7 @@ demo_callback_on_recv(uzmtp_dealer_s* dealer, uint32_t n)
         uzmtp_msg_destroy(&msg);
     }
 
-    // Arrive here then test passes
+    test_completed = 1;
     test_passed = pass == 2 ? 1 : 0;
 
     return 0;
@@ -111,7 +111,7 @@ main(int argc, char* argv[])
         return -1;
     }
 
-    while (!test_passed) {
+    while (!test_completed) {
         if (uzmtp_dealer_ready(dealer) && !echo_sent) {
             // Send frames echo server, expect HELLO WORLD in our recv callback
             echo_sent = 1;
@@ -134,6 +134,5 @@ main(int argc, char* argv[])
 
     uzmtp_dealer_destroy(&dealer);
     close(connection);
-    assert(test_passed == 1);
     return test_passed ? 0 : -1;
 }

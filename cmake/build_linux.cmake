@@ -82,9 +82,10 @@ if(UZMTP_ENABLE_TESTING)
     target_link_libraries(uzmtp-test-integration zmq-static uzmtp ${CMAKE_THREAD_LIBS_INIT} rt)
 
     # Add tests
-    add_test(NAME fixtureSetup COMMAND ${CMAKE_COMMAND} -P ${FIXTURE_DIR}/run.cmake)
+    set(TEST_COMMAND "node ${FIXTURE_DIR}/index.js ${CMAKE_BINARY_DIR}/uzmtp-test-integration")
     add_test(NAME uzmtp-test-unit COMMAND uzmtp-test-unit)
-    add_test(NAME uzmtp-test-integration COMMAND uzmtp-test-integration)
-    set_tests_properties(fixtureSetup PROPERTIES FIXTURES_SETUP Fixture)
-    set_tests_properties(uzmtp-test-integration PROPERTIES FIXTURES_REQUIRED Fixture)
+    add_test(NAME uzmtp-test-integration 
+        COMMAND "node"
+        "${FIXTURE_DIR}/index.js"
+        "${CMAKE_BINARY_DIR}/uzmtp-test-integration")
 endif()
