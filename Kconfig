@@ -3,3 +3,9 @@ menuconfig LIBUZMTP
 	help
 		This option enables a lightweight ZMQ stack that supports the dealer 
 		protocol.
+
+module = LIBUZMTP
+module-str = libuzmtp
+source "subsys/logging/Kconfig.template.log_config"
+
+
