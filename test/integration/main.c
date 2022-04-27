@@ -14,8 +14,8 @@ static int test_passed = 0, test_completed = 0;
 int
 demo_callback_want_write(uzmtp_dealer_s* dealer, const uint8_t* b, uint32_t sz)
 {
-int connection = *(int*)uzmtp_dealer_connection_get(dealer);
-return send(connection, b, sz, 0) == sz ? 0 : -1;
+    int connection = *(int*)uzmtp_dealer_connection_get(dealer);
+    return send(connection, b, sz, 0) == sz ? 0 : -1;
 }
 
 int
