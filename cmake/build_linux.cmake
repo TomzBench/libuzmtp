@@ -88,4 +88,5 @@ if(UZMTP_ENABLE_TESTING)
         COMMAND "node"
         "${FIXTURE_DIR}/index.js"
         "${CMAKE_BINARY_DIR}/uzmtp-test-integration")
+    add_dependencies(uzmtp-test-integration node_modules)
 endif()
