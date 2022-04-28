@@ -1,5 +1,6 @@
 menuconfig LIBUZMTP
 	bool "libuzmtp ZMQ support"
+	select NET_SOCKETS
 	help
 		This option enables a lightweight ZMQ stack that supports the dealer 
 		protocol.
