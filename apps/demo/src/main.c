@@ -26,16 +26,34 @@
 
 LOG_MODULE_REGISTER(main);
 
+static ssize_t
+sendall(int sock, const void* buf, size_t len)
+{
+    while (len) {
+        ssize_t out_len = send(sock, buf, len, 0);
+
+        if (out_len < 0) {
+            return out_len;
+        }
+        buf = (const char*)buf + out_len;
+        len -= out_len;
+    }
+
+    return 0;
+}
+
 static int
 demo_cb_want_write(uzmtp_dealer_s* dealer, const uint8_t* b, uint32_t sz)
 {
     int connection = *(int*)uzmtp_dealer_connection_get(dealer);
-    return send(connection, b, sz, 0) == sz ? 0 : -1;
+    // return sendall(connection, b, sz) == sz ? 0 : -1;
+    return sendall(connection, b, sz);
 }
 
 static int
 demo_cb_on_recv(uzmtp_dealer_s* dealer, uint32_t n)
 {
+    (*(int*)uzmtp_dealer_context_get(dealer))++;
     while (n--) {
         uzmtp_msg_s* msg = uzmtp_dealer_pop_incoming(dealer);
         assert(msg);
@@ -43,6 +61,7 @@ demo_cb_on_recv(uzmtp_dealer_s* dealer, uint32_t n)
             "Received: [%.*s]", (int)uzmtp_msg_size(msg), uzmtp_msg_data(msg));
         uzmtp_msg_destroy(&msg);
     }
+
     return 0;
 }
 
@@ -67,7 +86,7 @@ main(void)
     struct sockaddr sockaddr;
     uint8_t buf[MAX_BUF_LEN];
     uint32_t sz;
-    int fd, ret;
+    int fd, ret, state = 0;
 
     LOG_INF("Starting application...");
 
@@ -105,20 +124,27 @@ main(void)
         exit(-1);
     }
 
+    uzmtp_dealer_context_set(dealer, &state);
+
     while (1) {
         k_msleep(1000);
-
-        // Write to peer
-        msg = uzmtp_msg_new_from_const_data(0, "hello", 5);
-        if (!msg) break;
-        uzmtp_dealer_send(dealer, &msg);
-        if (msg) break;
+        if (state == 0) {
+            // Write to peer
+            msg = uzmtp_msg_new_from_const_data(0, "hello", 5);
+            if (!msg) break;
+            uzmtp_dealer_send(dealer, &msg);
+            if (msg) break;
+            state++;
+        }
 
         // Receive from peer
         sz = recv(fd, buf, sizeof(buf), 0);
         if (sz <= 0) break;
         ret = uzmtp_dealer_parse(dealer, buf, sz);
         if (ret) break;
+
+        // end app
+        if (state == 2) break;
     }
 
     uzmtp_dealer_destroy(&dealer);
