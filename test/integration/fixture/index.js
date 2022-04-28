@@ -7,12 +7,12 @@ const command = process.argv[2];
 console.log(`Fixture running (${PORT})`);
 
 s.bind(`tcp://*:${PORT}`);
-s.on("message", function toUpper(id, hello, world) {
-  s.send([
-    id,
-    Buffer.from(hello).toString().toUpperCase(),
-    Buffer.from(world).toString().toUpperCase(),
-  ]);
+s.on("message", function toUpper(id, ...args) {
+  args = args.map((a) => Buffer.from(a).toString());
+  console.log("Recv:", args);
+  args = args.map((a) => a.toUpperCase());
+  s.send([id, ...args]);
+  console.log("Sent:", args);
 });
 
 if (command) {
