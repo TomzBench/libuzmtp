@@ -7,10 +7,14 @@
 static void
 test_zmtp_msg_new_stacked(void** context_p)
 {
+    char expect[255];
+    memset(expect, 'a', sizeof(expect));
     uzmtp_stack_msg_init(msg, 0, 255);
+    memset(uzmtp_stack_msg_data(&msg), 'a', 255);
     assert_false(uzmtp_stack_msg_is_more(&msg));
     assert_false(uzmtp_stack_msg_is_large(&msg));
     assert_int_equal(uzmtp_stack_msg_size(&msg), 255);
+    assert_memory_equal(uzmtp_stack_msg_data(&msg), expect, 255);
     assert_null(uzmtp_stack_msg_next(&msg));
 }
 
@@ -287,7 +291,6 @@ zmtp_msg_tests()
         cmocka_unit_test(test_zmtp_msg_new_from_data_large_stacked),
         cmocka_unit_test(test_zmtp_msg_new_from_data_large_more),
         cmocka_unit_test(test_zmtp_msg_new_from_data_large_more_stacked),
-
         cmocka_unit_test(test_zmtp_msg_new_from_const_data),
         cmocka_unit_test(test_zmtp_msg_new_from_const_data_stacked),
 
