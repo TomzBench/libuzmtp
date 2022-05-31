@@ -4,12 +4,27 @@
 
 #include "uzmtp_msg.h"
 
-void uzmtp_msg_init(
+void
+uzmtp_msg_init(
     uzmtp_msg__s* msg,
     uint8_t flags,
     void* data,
     size_t size,
-    int greedy);
+    int greedy)
+{
+    msg->next = NULL;
+    msg->flags = flags;
+    msg->data = data;
+    msg->size = size;
+    msg->greedy = greedy;
+    if (msg->size > 255) msg->flags |= UZMTP_MSG_LARGE;
+}
+
+void
+uzmtp_msg_deinit(uzmtp_msg__s* msg)
+{
+    if (msg->greedy) uzmtp_free(msg->data);
+}
 
 uzmtp_msg__s*
 uzmtp_msg_new(uint8_t flags, size_t size)
@@ -41,27 +56,11 @@ uzmtp_msg_new_from_const_data(uint8_t flags, void* data, size_t size)
 }
 
 void
-uzmtp_msg_init(
-    uzmtp_msg__s* msg,
-    uint8_t flags,
-    void* data,
-    size_t size,
-    int greedy)
-{
-    msg->next = NULL;
-    msg->flags = flags;
-    msg->data = data;
-    msg->size = size;
-    msg->greedy = greedy;
-    if (msg->size > 255) msg->flags |= UZMTP_MSG_LARGE;
-}
-
-void
 uzmtp_msg_destroy(uzmtp_msg__s** self_p)
 {
     if (*self_p) {
         uzmtp_msg__s* self = *self_p;
-        if (self->greedy) uzmtp_free(self->data);
+        uzmtp_msg_deinit(self);
         uzmtp_free(self);
         *self_p = NULL;
     }

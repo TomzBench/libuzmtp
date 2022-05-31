@@ -13,8 +13,36 @@ extern "C" {
 
 #include "uzmtp_platform.h"
 
+// 2 data pointers (*next, *data)
+// 2 bytes         (pad[1], flags)
+// 1 int           (greedy)
+// size_t          (size)
+#define UZMTP_MSG_SIZE                                                         \
+    (sizeof(uintptr_t) * 2) + (sizeof(uint8_t) * 2) + (sizeof(int)) +          \
+        (sizeof(size_t))
+
+// #define UZMTP_MSG_SIZE                                                         \
+//     (sizeof(uintptr_t)) + (sizeof(uint8_t)) + sizeof(uint8_t) +                \
+//         sizeof(size_t) + sizeof(int)
+
 typedef struct uzmtp_dealer__s uzmtp_dealer_s;
 typedef struct uzmtp_msg__s uzmtp_msg_s;
+
+// You might want to initialize msgs on the stack. since uzmtp_msg__s is an
+// opaque type, use this with the init functions instead of new functions
+#define uzmtp_msg_opaque(_n)                                                   \
+    struct                                                                     \
+    {                                                                          \
+        union                                                                  \
+        {                                                                      \
+            max_align_t a;                                                     \
+            char __bytes[UZMTP_MSG_SIZE + _n];                                 \
+        };                                                                     \
+    }
+
+// Helper to point to the end of the message (which contains the data)
+#define uzmtp_msg_pad(_msg) &((uint8_t*)_msg)[UZMTP_MSG_SIZE]
+
 typedef void uzmtp_connection;
 
 typedef enum

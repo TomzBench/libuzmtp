@@ -14,14 +14,15 @@ extern "C" {
 #define UZMTP_ANYSIZE_ARRAY 1
 typedef struct uzmtp_msg__s
 {
-    struct uzmtp_msg__s* next;
-    uint8_t flags;
-    uint8_t* data;
-    size_t size;
-    int greedy;
-    uint8_t pad[UZMTP_ANYSIZE_ARRAY];
+    struct uzmtp_msg__s* next;        // 8
+    uint8_t flags;                    // 1
+    uint8_t* data;                    // 8
+    size_t size;                      // 8
+    int greedy;                       // 4
+    uint8_t pad[UZMTP_ANYSIZE_ARRAY]; // 1
 } uzmtp_msg__s;
 
+void uzmtp_msg_init(uzmtp_msg__s*, uint8_t, void*, size_t, int);
 uzmtp_msg__s* uzmtp_msg_new(uint8_t flags, size_t size);
 uzmtp_msg__s* uzmtp_msg_new_from_data(uint8_t, uint8_t** data_p, size_t size);
 uzmtp_msg__s* uzmtp_msg_new_from_const_data(uint8_t flags, void*, size_t);
