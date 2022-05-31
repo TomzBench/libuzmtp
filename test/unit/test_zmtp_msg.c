@@ -187,15 +187,15 @@ test_zmtp_msg_new_from_const_data_stacked(void** context_p)
 {
     ((void)context_p);
     char data[255], expect[255];
-    uzmtp_stack_msg_init_from_const_data(msg, 0, data, 255);
     memset(data, 'a', 255);
     memset(expect, 'a', 255);
+    uzmtp_stack_msg_init_from_const_data(msg, 0, data, 255);
     assert_false(uzmtp_stack_msg_is_more(&msg));
     assert_false(uzmtp_stack_msg_is_large(&msg));
     assert_int_equal(uzmtp_stack_msg_size(&msg), 255);
     assert_memory_equal(uzmtp_stack_msg_data(&msg), expect, 255);
     assert_null(uzmtp_stack_msg_next(&msg));
-    //uzmtp_stack_msg_deinit(&msg);
+    uzmtp_stack_msg_deinit(&msg);
 }
 
 static void

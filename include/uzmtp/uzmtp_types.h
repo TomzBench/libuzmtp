@@ -13,17 +13,8 @@ extern "C" {
 
 #include "uzmtp_platform.h"
 
-// 2 data pointers (*next, *data)
-// 2 bytes         (pad[1], flags)
-// 1 int           (greedy)
-// size_t          (size)
 #define UZMTP_MSG_SIZE                                                         \
-    (sizeof(uintptr_t) * 2) + (sizeof(uint8_t) * 2) + (sizeof(int)) +          \
-        (sizeof(size_t))
-
-// #define UZMTP_MSG_SIZE                                                         \
-//     (sizeof(uintptr_t)) + (sizeof(uint8_t)) + sizeof(uint8_t) +                \
-//         sizeof(size_t) + sizeof(int)
+    sizeof(uintptr_t) * 2 + sizeof(size_t) + sizeof(int) + sizeof(uint8_t)
 
 typedef struct uzmtp_dealer__s uzmtp_dealer_s;
 typedef struct uzmtp_msg__s uzmtp_msg_s;
