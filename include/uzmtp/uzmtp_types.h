@@ -16,9 +16,6 @@ extern "C" {
 #define UZMTP_MSG_SIZE                                                         \
     sizeof(uintptr_t) * 2 + sizeof(size_t) + sizeof(int) + sizeof(uint8_t)
 
-typedef struct uzmtp_dealer__s uzmtp_dealer_s;
-typedef struct uzmtp_msg__s uzmtp_msg_s;
-
 // You might want to initialize msgs on the stack. since uzmtp_msg__s is an
 // opaque type, use this with the init functions instead of new functions
 #define uzmtp_msg_opaque(_n)                                                   \
@@ -33,6 +30,10 @@ typedef struct uzmtp_msg__s uzmtp_msg_s;
 
 // Helper to point to the end of the message (which contains the data)
 #define uzmtp_msg_pad(_msg) &((uint8_t*)_msg)[UZMTP_MSG_SIZE]
+
+typedef struct uzmtp_dealer__s uzmtp_dealer_s;
+typedef struct uzmtp_msg__s uzmtp_msg_s;
+// typedef uzmtp_msg_opaque(0) uzmtp_msg_s;
 
 typedef void uzmtp_connection;
 
