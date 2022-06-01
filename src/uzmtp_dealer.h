@@ -16,17 +16,21 @@ typedef struct
 {
     uzmtp_connection* connection;
     uzmtp_dealer_settings* settings;
-    EUZMTP_STATE state;
-    void* context;
-    int32_t n_incoming;
-    uint64_t b;
-    uint8_t ready;
-    uint8_t curr_flags;
-    uint64_t curr_size;
     uzmtp_msg_s* curr_msg;
     uzmtp_msg_s* incoming;
     uzmtp_msg_s* tail;
+    void* context;
+    EUZMTP_STATE state;
+    int32_t n_incoming;
+    uint64_t b;
+    uint64_t curr_size;
+    uint8_t ready;
+    uint8_t curr_flags;
 } uzmtp_dealer__s;
+
+_Static_assert(
+    sizeof(uzmtp_dealer_opaque) == sizeof(uzmtp_dealer__s),
+    "invalid uzmtp_msg__s size assumption");
 
 // Constructors
 uzmtp_dealer__s* uzmtp_dealer_new(uzmtp_dealer_settings* settings);

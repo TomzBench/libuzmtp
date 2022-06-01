@@ -15,6 +15,9 @@ extern "C" {
 
 #define UZMTP_MSG_SIZE                                                         \
     sizeof(uintptr_t) * 2 + sizeof(size_t) + sizeof(int) + sizeof(uint8_t)
+#define UZMTP_DEALER_SIZE                                                      \
+    sizeof(uintptr_t) * 5 + sizeof(int) + sizeof(int32_t) +                    \
+        sizeof(uint64_t) * 2 + sizeof(uint8_t) * 2
 
 // You might want to initialize msgs on the stack. since uzmtp_msg__s is an
 // opaque type, use this with the init functions instead of new functions
@@ -25,6 +28,16 @@ extern "C" {
         {                                                                      \
             max_align_t a;                                                     \
             char __bytes[UZMTP_MSG_SIZE + _n];                                 \
+        };                                                                     \
+    }
+
+#define uzmtp_dealer_opaque                                                    \
+    struct                                                                     \
+    {                                                                          \
+        union                                                                  \
+        {                                                                      \
+            max_align_t a;                                                     \
+            char __bytes[UZMTP_DEALER_SIZE];                                   \
         };                                                                     \
     }
 
