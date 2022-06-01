@@ -227,8 +227,6 @@ test_zmtp_msg_new_from_const_data_large_stacked(void** context_p)
     char data[256], expect[256];
     memset(data, 'a', 256);
     memset(expect, 'a', 256);
-    // uzmtp_msg_s* msg = uzmtp_msg_new_from_const_data(0, data, 256);
-    // assert_non_null(msg);
     uzmtp_stack_msg_init_from_const_data(msg, 0, data, 256);
     assert_false(uzmtp_stack_msg_is_more(&msg));
     assert_true(uzmtp_stack_msg_is_large(&msg));
@@ -349,7 +347,6 @@ zmtp_msg_tests()
         cmocka_unit_test(test_zmtp_msg_new_from_const_data_large_stacked),
         cmocka_unit_test(test_zmtp_msg_new_from_const_data_large_more),
         cmocka_unit_test(test_zmtp_msg_new_from_const_data_large_more_stacked),
-
         cmocka_unit_test(test_zmtp_msg_set_get_clr_more),
         cmocka_unit_test(test_zmtp_msg_set_get_clr_more_stacked)
     };
