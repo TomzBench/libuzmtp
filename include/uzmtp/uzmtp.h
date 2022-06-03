@@ -14,12 +14,11 @@ extern "C" {
 #include "uzmtp/uzmtp_types.h"
 
 // uzmtp_msg_...()
-void uzmtp_msg_init(uzmtp_msg_s*, uint8_t, void*, size_t, int);
+void uzmtp_msg_init(uzmtp_msg_s*, uint8_t, void*, size_t);
+void uzmtp_msg_init_str(uzmtp_msg_s*, uint8_t, char*);
+void uzmtp_msg_init_mem(uzmtp_msg_s*, uint8_t, uint8_t**, size_t);
+void uzmtp_msg_init_const(uzmtp_msg_s*, uint8_t, uint8_t*, size_t);
 void uzmtp_msg_deinit(uzmtp_msg_s* msg);
-uzmtp_msg_s* uzmtp_msg_new(uint8_t flags, size_t size);
-uzmtp_msg_s* uzmtp_msg_new_from_data(uint8_t, uint8_t** data_p, size_t size);
-uzmtp_msg_s* uzmtp_msg_new_from_const_data(uint8_t flags, void*, size_t);
-void uzmtp_msg_destroy(uzmtp_msg_s** self_p);
 uint8_t uzmtp_msg_flags(uzmtp_msg_s* self);
 void uzmtp_msg_set_more(uzmtp_msg_s* self);
 void uzmtp_msg_clr_more(uzmtp_msg_s* self);

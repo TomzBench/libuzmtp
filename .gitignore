@@ -33,3 +33,5 @@ nohup.out
 
 external/*
 include/uzmtp/uzmtp_platform.h
+
+compile_commands.json

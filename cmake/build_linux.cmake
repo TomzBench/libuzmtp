@@ -11,7 +11,7 @@ set(SOURCES
 #------------------------------------------------------------------------------
 set(HEADERS
     # ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_dealer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_msg.h
+    # ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_msg.h
 )
 
 #------------------------------------------------------------------------------
