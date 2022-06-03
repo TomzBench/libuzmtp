@@ -29,8 +29,7 @@ uzmtp_msg_deinit(uzmtp_msg__s* msg)
 uzmtp_msg__s*
 uzmtp_msg_new(uint8_t flags, size_t size)
 {
-    uzmtp_msg__s* msg =
-        uzmtp_malloc(sizeof(uzmtp_msg__s) + size - UZMTP_ANYSIZE_ARRAY);
+    uzmtp_msg__s* msg = uzmtp_malloc(sizeof(uzmtp_msg__s) + size);
     if (!msg) return NULL;
     uzmtp_msg_init(msg, flags, msg->pad, size, 0);
     return msg;

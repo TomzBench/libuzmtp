@@ -1,4 +1,4 @@
-#include "test_helpers.h"
+#include "helpers.h"
 
 #define RECV_LARGE_SZ 20480
 #define RECV_LARGE_DATA 'A'
@@ -512,7 +512,7 @@ test_zmtp_dealer_send_message_large(void** context_p)
 }
 
 int
-zmtp_dealer_tests()
+main(void)
 {
     int err;
 

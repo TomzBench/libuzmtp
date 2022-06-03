@@ -64,26 +64,33 @@ if(UZMTP_ENABLE_TESTING)
         WORKING_DIRECTORY "${FIXTURE_DIR}")
     add_custom_target(node_modules DEPENDS "${FIXTURE_DIR}/node_modules")
 
-    # Build unit test exe
-    add_executable(uzmtp-test-unit
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/main.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test_helpers.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test_helpers.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test_zmtp_dealer.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/test_zmtp_msg.c
+    # Build dealer unit test exe
+    add_executable(uzmtp-test-unit-dealer 
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/dealer.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.h
     )
-    target_link_libraries(uzmtp-test-unit uzmtp cmocka)
-    install(TARGETS uzmtp-test-unit DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    target_link_libraries(uzmtp-test-unit-dealer uzmtp cmocka)
+    install(TARGETS uzmtp-test-unit-dealer DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+    # Build msg unit test exe
+    add_executable(uzmtp-test-unit-msg
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/msg.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.h
+    )
+    target_link_libraries(uzmtp-test-unit-msg uzmtp cmocka)
+    install(TARGETS uzmtp-test-unit-msg DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
 
     # Build integration test exe
-    add_executable(uzmtp-test-integration
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/main.c
-    )
+    add_executable(uzmtp-test-integration ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/main.c)
     target_link_libraries(uzmtp-test-integration zmq-static uzmtp ${CMAKE_THREAD_LIBS_INIT} rt)
 
     # Add tests
     set(TEST_COMMAND "node ${FIXTURE_DIR}/index.js ${CMAKE_BINARY_DIR}/uzmtp-test-integration")
-    add_test(NAME uzmtp-test-unit COMMAND uzmtp-test-unit)
+    add_test(NAME uzmtp-test-unit-msg COMMAND uzmtp-test-unit-msg)
+    add_test(NAME uzmtp-test-unit-dealer COMMAND uzmtp-test-unit-dealer)
     add_test(NAME uzmtp-test-integration 
         COMMAND "node"
         "${FIXTURE_DIR}/index.js"

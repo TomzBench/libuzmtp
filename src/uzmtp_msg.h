@@ -11,8 +11,6 @@ extern "C" {
 
 #include "uzmtp/uzmtp_types.h"
 
-#define UZMTP_ANYSIZE_ARRAY 0
-
 /// NOTE - order of fields is important to maintain efficient layout and to
 ///        ensure our size assumption matches the opaque type when placing on
 ///        the stack
@@ -23,10 +21,10 @@ typedef struct uzmtp_msg__s
     size_t size;
     int greedy;
     uint8_t flags;
-    uint8_t pad[UZMTP_ANYSIZE_ARRAY];
+    uint8_t pad[0];
 } uzmtp_msg__s;
 
-typedef uzmtp_msg_opaque(0) uzmtp_msg__s0;
+typedef uzmtp_msg_opaque uzmtp_msg__s0;
 
 _Static_assert(
     sizeof(uzmtp_msg__s0) == sizeof(uzmtp_msg__s),

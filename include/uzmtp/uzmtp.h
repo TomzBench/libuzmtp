@@ -13,35 +13,6 @@ extern "C" {
 
 #include "uzmtp/uzmtp_types.h"
 
-// Stack allocator for a msg of a specified size. use uzmtp_stack_msg_data to
-// populate the data of the message
-#define uzmtp_stack_msg_init(_name, _f, _n)                                    \
-    uzmtp_msg_opaque(_n) _name;                                                \
-    uzmtp_msg_init((uzmtp_msg_s*)&(_name), _f, uzmtp_msg_pad(&_name), _n, 0)
-
-// initialize a message on the stack, where data is located on the heap
-#define uzmtp_stack_msg_init_from_data(_name, _f, _d, _l)                      \
-    uzmtp_msg_opaque(0) _name;                                                 \
-    uzmtp_msg_init((uzmtp_msg_s*)&(_name), (_f), *(_d), (_l), 1)
-
-// initialize a message on the stack where the data is located somewhere else
-// and should not be free'd
-#define uzmtp_stack_msg_init_from_const_data(_name, _f, _d, _l)                \
-    uzmtp_msg_opaque(0) _name;                                                 \
-    uzmtp_msg_init((uzmtp_msg_s*)&(_name), (_f), (_d), (_l), 0)
-
-// The rest of the stack macros are just helpers to cast the opaque stack object
-// to the pointer type.
-#define uzmtp_stack_msg_deinit(_name) uzmtp_msg_deinit((uzmtp_msg_s*)_name)
-#define uzmtp_stack_msg_flags(_msg) uzmtp_msg_flags((uzmtp_msg_s*)_msg)
-#define uzmtp_stack_msg_set_more(_msg) uzmtp_msg_set_more((uzmtp_msg_s*)_msg)
-#define uzmtp_stack_msg_clr_more(_msg) uzmtp_msg_clr_more((uzmtp_msg_s*)_msg)
-#define uzmtp_stack_msg_is_more(_msg) uzmtp_msg_is_more((uzmtp_msg_s*)_msg)
-#define uzmtp_stack_msg_is_large(_msg) uzmtp_msg_is_large((uzmtp_msg_s*)_msg)
-#define uzmtp_stack_msg_data(_msg) uzmtp_msg_data((uzmtp_msg_s*)_msg)
-#define uzmtp_stack_msg_size(_msg) uzmtp_msg_size((uzmtp_msg_s*)_msg)
-#define uzmtp_stack_msg_next(_msg) uzmtp_msg_next((uzmtp_msg_s*)_msg)
-
 // uzmtp_msg_...()
 void uzmtp_msg_init(uzmtp_msg_s*, uint8_t, void*, size_t, int);
 void uzmtp_msg_deinit(uzmtp_msg_s* msg);

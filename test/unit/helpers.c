@@ -1,6 +1,6 @@
 #include <uzmtp/uzmtp.h>
 
-#include "test_helpers.h"
+#include "helpers.h"
 
 static int mock_bytes_sent = 0;
 static mock_packet_s* outgoing = NULL;
