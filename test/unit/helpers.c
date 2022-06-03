@@ -16,9 +16,10 @@ test_state_reset()
     n_error = 0;
     n_recv = 0;
     last_error = 0;
-    test_state_reset_outgoing();
+    // test_state_reset_outgoing();
 }
 
+/*
 void
 test_state_push_outgoing(int sock, const uint8_t* b, uint32_t l)
 {
@@ -28,7 +29,8 @@ test_state_push_outgoing(int sock, const uint8_t* b, uint32_t l)
     if (!outgoing) {
         outgoing = uzmtp_malloc(sizeof(mock_packet_s) + l);
         next = outgoing;
-    } else {
+    }
+    else {
         while (next->next) next = next->next;
         next->next = uzmtp_malloc(sizeof(mock_packet_s) + l);
         next = next->next;
@@ -73,8 +75,9 @@ test_state_free_packet(mock_packet_s** packet_p)
     uzmtp_free(packet);
 }
 
+*/
 void
-test_zmtp_dealer_state_ready(uzmtp_dealer_s* d)
+test_zmtp_dealer_drive_ready(uzmtp_dealer_s* d, uzmtp_msg_s* msgs, size_t l)
 {
     int sz;
     uint8_t buffer[64];
@@ -82,14 +85,9 @@ test_zmtp_dealer_state_ready(uzmtp_dealer_s* d)
     mock_packet_s* pack;
 
     test_print_greeting(buffer);
-    uzmtp_dealer_parse(d, buffer, 64);
+    uzmtp_dealer_parse(d, buffer, 64, msgs, l);
     sz = test_print_incoming(buffer, ready, sizeof(ready), UZMTP_MSG_COMMAND);
-    uzmtp_dealer_parse(d, buffer, sz);
-    for (int i = 0; i < 3; i++) {
-        // Outgoing greeting, ready prefix and ready body from outgoing
-        pack = test_state_pop_last_outgoing_packet();
-        test_state_free_packet(&pack);
-    }
+    uzmtp_dealer_parse(d, buffer, sz, msgs, l);
 }
 
 void
@@ -119,7 +117,8 @@ test_print_incoming(uint8_t* dst, uint8_t* src, uint64_t sz, uint8_t flags)
         dst[8] = sz;
         memcpy(&dst[9], src, sz);
         return sz + 9;
-    } else {
+    }
+    else {
         dst[0] = flags;
         dst[1] = sz;
         memcpy(&dst[2], src, sz);
@@ -128,21 +127,23 @@ test_print_incoming(uint8_t* dst, uint8_t* src, uint64_t sz, uint8_t flags)
 }
 
 void
-test_assert_valid_greeting(mock_packet_s* pack)
+test_assert_valid_greeting(const uint8_t* bytes, size_t len)
 {
     uint8_t expect[64];
     test_print_greeting(expect);
-    assert_non_null(pack);
-    assert_int_equal(pack->sz, 64);
-    assert_memory_equal(pack->b, expect, 64);
+    assert_int_equal(len, 64);
+    assert_memory_equal(bytes, expect, 64);
 }
 
 void
-test_assert_valid_header(mock_packet_s* pack, uint8_t flags, uint64_t size)
+test_assert_valid_header(
+    const uint8_t* b,
+    size_t sz,
+    uint8_t flags,
+    uint64_t size)
 {
     uint8_t prefix[9] = { flags };
 
-    assert_non_null(pack);
     if (flags & UZMTP_MSG_LARGE) {
         prefix[1] = size >> 56;
         prefix[2] = size >> 48;
@@ -152,20 +153,20 @@ test_assert_valid_header(mock_packet_s* pack, uint8_t flags, uint64_t size)
         prefix[6] = size >> 16;
         prefix[7] = size >> 8;
         prefix[8] = size;
-        assert_int_equal(pack->sz, sizeof(prefix));
-        assert_memory_equal(prefix, pack->b, pack->sz);
-    } else {
+        assert_int_equal(sz, sizeof(prefix));
+        assert_memory_equal(prefix, b, sz);
+    }
+    else {
         prefix[1] = size;
-        assert_int_equal(pack->sz, 2);
-        assert_memory_equal(prefix, pack->b, pack->sz);
+        assert_int_equal(sz, 2);
+        assert_memory_equal(prefix, b, sz);
     }
 }
 
 void
-test_assert_valid_ready(mock_packet_s* pack)
+test_assert_valid_ready(const uint8_t* b, size_t sz)
 {
     uint8_t expect[] = { 5, 'R', 'E', 'A', 'D', 'Y' };
-    assert_non_null(pack);
-    assert_int_equal(pack->sz, sizeof(expect));
-    assert_memory_equal(expect, pack->b, pack->sz);
+    assert_int_equal(sz, sizeof(expect));
+    assert_memory_equal(expect, b, sz);
 }

@@ -30,12 +30,12 @@ int test_state_get_outgoing_bytes();
 void test_state_reset_outgoing();
 void test_state_free_packet(mock_packet_s** packet_p);
 
-void test_zmtp_dealer_state_ready(uzmtp_dealer_s* d);
+void test_zmtp_dealer_drive_ready(uzmtp_dealer_s* d, uzmtp_msg_s* msgs, size_t);
 void test_print_greeting(uint8_t* b);
 int test_print_incoming(uint8_t* dst, uint8_t* src, uint64_t s, uint8_t f);
-void test_assert_valid_greeting(mock_packet_s* pack);
-void test_assert_valid_header(mock_packet_s* pack, uint8_t fl, uint64_t sz);
-void test_assert_valid_ready(mock_packet_s* pack);
+void test_assert_valid_greeting(const uint8_t*, size_t);
+void test_assert_valid_header(const uint8_t*, size_t, uint8_t fl, uint64_t sz);
+void test_assert_valid_ready(const uint8_t*, size_t);
 
 #ifdef __cplusplus
 } /* extern "C" */

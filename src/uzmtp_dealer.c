@@ -2,16 +2,38 @@
  * uzmtp_dealer.c
  */
 
-#include "uzmtp_dealer.h"
+#include "uzmtp/uzmtp.h"
 
-#define UERROR(dealer, x)                                                      \
+// Main context
+typedef struct
+{
+    union
+    {
+        struct
+        {
+            uzmtp_connection* connection;
+            uzmtp_send_fn send;
+            void* context;
+            EUZMTP_STATE state;
+            size_t curr_size;
+            uint32_t b;
+            uint32_t m;
+            uint8_t ready;
+        };
+        max_align_t __phanton;
+    };
+} uzmtp_dealer__s;
+
+_Static_assert(
+    sizeof(uzmtp_dealer_s) == sizeof(uzmtp_dealer__s),
+    "invalid uzmtp_msg__s size assumption");
+
+#define UERROR(dealer)                                                         \
     do {                                                                       \
         dealer->state = UZMTP_NULL;                                            \
         dealer->ready = 0;                                                     \
-        free_incoming(dealer);                                                 \
+        dealer->curr_size = 0;                                                 \
         d->b = 0;                                                              \
-        if (dealer->curr_msg) uzmtp_msg_destroy(&dealer->curr_msg);            \
-        dealer->settings->on_error((void*)dealer, x);                          \
     } while (0)
 
 typedef struct
@@ -39,88 +61,72 @@ static void free_incoming(uzmtp_dealer__s* d);
 static void push_incoming(uzmtp_dealer__s* d, uzmtp_msg_s** msg_p);
 static uzmtp_msg_s* pop_incoming(uzmtp_dealer__s* d);
 
-uzmtp_dealer__s*
-uzmtp_dealer_new(uzmtp_dealer_settings* settings)
+void
+uzmtp_dealer_init(uzmtp_dealer_s* dealer, uzmtp_send_fn fn, void* ctx)
 {
-    uzmtp_dealer__s* dealer = uzmtp_malloc(sizeof(uzmtp_dealer__s));
-    if (dealer) {
-        memset(dealer, 0, sizeof(uzmtp_dealer__s));
-        dealer->settings = settings;
-        dealer->state = UZMTP_NULL;
-    }
-    return dealer;
+    memset(dealer, 0, sizeof(uzmtp_dealer__s));
+    ((uzmtp_dealer__s*)dealer)->send = fn;
+    ((uzmtp_dealer__s*)dealer)->state = UZMTP_NULL;
+    ((uzmtp_dealer__s*)dealer)->context = ctx;
 }
 
 void
-uzmtp_dealer_destroy(uzmtp_dealer__s** self_p)
+uzmtp_dealer_deinit(uzmtp_dealer_s* self_p)
 {
-    uzmtp_dealer__s* self = *self_p;
-    *self_p = 0;
-    free_incoming(self);
-    if (self->curr_msg) uzmtp_msg_destroy(&self->curr_msg);
-    uzmtp_free(self);
-}
-void
-uzmtp_dealer_context_set(uzmtp_dealer__s* dealer, void* context)
-{
-    dealer->context = context;
+    uzmtp_dealer__s* self = (uzmtp_dealer__s*)self_p;
+    memset(self, 0, sizeof(uzmtp_dealer__s));
 }
 
 void*
-uzmtp_dealer_context_get(uzmtp_dealer__s* dealer)
+uzmtp_dealer_context(uzmtp_dealer_s* dealer)
 {
-    return dealer->context;
+    return ((uzmtp_dealer__s*)dealer)->context;
 }
 
 uzmtp_connection*
-uzmtp_dealer_connection_get(uzmtp_dealer__s* dealer)
+uzmtp_dealer_connection(uzmtp_dealer_s* dealer)
 {
-    return dealer->connection;
+    return ((uzmtp_dealer__s*)dealer)->connection;
 }
 
 EUZMTP_STATE
-uzmtp_dealer_state_get(uzmtp_dealer__s* dealer)
+uzmtp_dealer_state(uzmtp_dealer_s* dealer)
 {
-    return dealer->state;
+    return ((uzmtp_dealer__s*)dealer)->state;
 }
 
 uint8_t
-uzmtp_dealer_ready(uzmtp_dealer__s* d)
+uzmtp_dealer_ready(uzmtp_dealer_s* d)
 {
-    return d->ready;
-}
-
-uzmtp_msg_s*
-uzmtp_dealer_pop_incoming(uzmtp_dealer__s* d)
-{
-    return pop_incoming(d);
-}
-
-uint32_t
-uzmtp_dealer_incoming_count(uzmtp_dealer__s* d)
-{
-    return d->n_incoming;
+    return ((uzmtp_dealer__s*)d)->ready;
 }
 
 int
-uzmtp_dealer_connect(uzmtp_dealer__s* dealer, uzmtp_connection* c)
+uzmtp_dealer_connect(uzmtp_dealer_s* d, uzmtp_connection* c)
 {
-    int err;
+    int err = UZMTP_ERROR_SEND;
+    uzmtp_dealer__s* dealer = (uzmtp_dealer__s*)d;
     if (!(dealer->state == UZMTP_NULL)) return -1;
     dealer->connection = c;
-    err = dealer->settings->want_write(
-        (void*)dealer, (const uint8_t*)&greeting, sizeof(greeting));
-    if (!err) dealer->state++;
+    if (!dealer->send(d, (const uint8_t*)&greeting, sizeof(greeting))) {
+        dealer->state++;
+        err = 0;
+    }
     return err;
 }
 
 int
-uzmtp_dealer_parse(uzmtp_dealer__s* d, const uint8_t* bytes, uint32_t sz)
+uzmtp_dealer_parse(
+    uzmtp_dealer_s* dealer,
+    const uint8_t* bytes,
+    uint32_t sz,
+    uzmtp_msg_s* msgs,
+    uint32_t n_msg)
 {
     int ret = 0, flags;
     const uint8_t* ptr = (const uint8_t*)&greeting;
     uint32_t c, remaining;
-    uzmtp_msg_s* msg;
+    uzmtp_dealer__s* d = (uzmtp_dealer__s*)dealer;
 
 start:
     switch (d->state) {
@@ -137,32 +143,27 @@ start:
                 c--;
             }
             if (c) {
-                UERROR(d, UZMTP_ERROR_VERSION);
-                ret = -1;
+                UERROR(d);
+                ret = UZMTP_ERROR_VERSION;
                 break;
-            } else if (d->b == 64) {
-                msg = uzmtp_msg_new_from_const_data(
-                    UZMTP_MSG_COMMAND, "\5READY", 6);
-                if (msg) {
-                    ret = uzmtp_dealer_send(d, &msg);
-                    if (ret == 0) d->state++;
-                } else {
-                    UERROR(d, UZMTP_ERROR_MEMORY);
-                    ret = -1;
-                    break;
-                }
+            }
+            else if (d->b == 64) {
+                uzmtp_msg_s msg;
+                uzmtp_msg_init_str(&msg, UZMTP_MSG_COMMAND, "\5READY");
+                ret = uzmtp_dealer_send(dealer, &msg);
+                if (ret == 0) d->state++;
                 d->b = 0;
             }
             if (!sz) break;
         case UZMTP_CONNECT_WANT_READY: d->state++;
         case UZMTP_RECV_FLAGS:
-            d->curr_flags = *bytes;
+            uzmtp_msg_init(&msgs[d->m], *bytes, NULL, 0);
             d->state++;
             bytes++;
             sz--;
             if (!sz) break;
         case UZMTP_RECV_LENGTH:
-            if (d->curr_flags & UZMTP_MSG_LARGE) {
+            if (uzmtp_msg_is_large(&msgs[d->m])) {
                 remaining = 8 - d->b;
                 c = sz > remaining ? remaining : sz;
                 sz -= c;
@@ -175,58 +176,47 @@ start:
                 if (d->b == 8) {
                     d->b = 0;
                     d->state++;
-                    if (d->curr_msg) uzmtp_msg_destroy(&d->curr_msg);
-                    d->curr_msg = uzmtp_msg_new(d->curr_flags, d->curr_size);
-                    if (!d->curr_msg) {
-                        UERROR(d, UZMTP_ERROR_MEMORY);
-                        ret = -1;
-                        break;
-                    }
+                    uzmtp_msg_size_set(&msgs[d->m], d->curr_size);
+                    d->curr_size = 0;
                 }
-            } else {
-                d->curr_size = *bytes;
+            }
+            else {
+                uzmtp_msg_size_set(&msgs[d->m], *bytes);
                 bytes++;
                 sz--;
                 d->state++;
-                if (d->curr_msg) uzmtp_msg_destroy(&d->curr_msg);
-                d->curr_msg = uzmtp_msg_new(d->curr_flags, d->curr_size);
-                if (!d->curr_msg) {
-                    UERROR(d, UZMTP_ERROR_MEMORY);
-                    ret = -1;
-                    break;
-                }
             }
             if (!sz) break;
         case UZMTP_RECV_BODY:
-            remaining = d->curr_size - d->b;
+            remaining = uzmtp_msg_size(&msgs[d->m]) - d->b;
             c = sz > remaining ? remaining : sz;
-            memcpy(uzmtp_msg_data(d->curr_msg) + d->b, bytes, c);
+            uzmtp_msg_data_set(&msgs[d->m], (uint8_t*)bytes);
             d->b += c;
             bytes += c;
             sz -= c;
-            if (d->b == d->curr_size) {
+            if (d->b == uzmtp_msg_size(&msgs[d->m])) {
                 d->b = 0;
-                d->curr_size = d->curr_flags = 0;
                 d->state = UZMTP_RECV_FLAGS;
-                flags = uzmtp_msg_flags(d->curr_msg);
+                flags = uzmtp_msg_flags(&msgs[d->m]);
                 if (flags & UZMTP_MSG_COMMAND) {
-                    ret = process_command(d, d->curr_msg);
+                    ret = process_command(d, &msgs[d->m]);
                     if (ret == 0) {
-                        uzmtp_msg_destroy(&d->curr_msg);
-                    } else {
-                        UERROR(d, UZMTP_ERROR_PROTOCOL);
-                        ret = -1;
+                        uzmtp_msg_deinit(&msgs[d->m]);
                     }
-                } else if (!(flags & UZMTP_MSG_MORE)) {
-                    push_incoming(d, &d->curr_msg);
-                    ret = d->settings->on_recv((void*)d, d->n_incoming);
-                    if (ret < 0) {
-                        UERROR(d, UZMTP_ERROR_RECV);
-                        ret = -1;
+                    else {
+                        UERROR(d);
+                        ret = UZMTP_ERROR_PROTOCOL;
                     }
-                    free_incoming(d); // free whatever app didn't pop
-                } else if (flags & UZMTP_MSG_MORE) {
-                    push_incoming(d, &d->curr_msg);
+                }
+                else {
+                    d->m++;
+                    if (!(flags & UZMTP_MSG_MORE)) {
+                        // TODO return code signals process m messages
+                        ret = d->m;
+                    }
+                    else if (flags & UZMTP_MSG_MORE) {
+                        // TODO return code want more
+                    }
                 }
             }
             break;
@@ -238,12 +228,12 @@ start:
 }
 
 int
-uzmtp_dealer_send(uzmtp_dealer__s* d, uzmtp_msg__s** msg_p)
+uzmtp_dealer_send(uzmtp_dealer_s* dealer, uzmtp_msg_s* msg)
 {
     int err;
-    uzmtp_msg_s* msg = *msg_p;
     uint8_t prefix[9] = { uzmtp_msg_flags(msg) };
     const uint64_t msg_size = (uint64_t)uzmtp_msg_size(msg);
+    uzmtp_dealer__s* d = (uzmtp_dealer__s*)dealer;
 
     // TODO - if this is not a command and remote not ready, return -1
 
@@ -257,24 +247,18 @@ uzmtp_dealer_send(uzmtp_dealer__s* d, uzmtp_msg__s** msg_p)
         prefix[6] = msg_size >> 16;
         prefix[7] = msg_size >> 8;
         prefix[8] = msg_size;
-        err = d->settings->want_write((void*)d, prefix, sizeof(prefix));
-    } else {
+        err = d->send((void*)d, prefix, sizeof(prefix));
+    }
+    else {
         prefix[1] = uzmtp_msg_size(msg);
-        err = d->settings->want_write((void*)d, prefix, 2);
+        err = d->send((void*)d, prefix, 2);
     }
 
     // Send body
-    if (!err) {
-        err = d->settings->want_write(
-            (void*)d, uzmtp_msg_data(msg), uzmtp_msg_size(msg));
-    }
-
-    // Only free outgoing if no error
-    if (!err) {
-        *msg_p = NULL;
-        uzmtp_msg_destroy(&msg);
-    } else {
-        UERROR(d, UZMTP_ERROR_SEND);
+    if (!err) err = d->send((void*)d, uzmtp_msg_data(msg), uzmtp_msg_size(msg));
+    if (err) {
+        UERROR(d);
+        err = UZMTP_ERROR_SEND;
     }
     return err;
 }
@@ -289,44 +273,3 @@ process_command(uzmtp_dealer__s* d, uzmtp_msg_s* msg)
     }
     return -1;
 }
-
-static void
-push_incoming(uzmtp_dealer__s* d, uzmtp_msg_s** msg_p)
-{
-    if (d->tail) {
-        d->tail->next = *msg_p;
-        d->tail = d->tail->next;
-        d->n_incoming++;
-        *msg_p = NULL;
-    } else {
-        d->incoming = d->tail = *msg_p;
-        d->n_incoming++;
-        *msg_p = NULL;
-    }
-}
-static uzmtp_msg_s*
-pop_incoming(uzmtp_dealer__s* d)
-{
-    uzmtp_msg_s* next = NULL;
-    if (d->incoming) {
-        next = d->incoming;
-        d->incoming = d->incoming->next;
-        d->n_incoming--;
-        if (!d->incoming) d->tail = NULL;
-    }
-    return next;
-}
-
-static void
-free_incoming(uzmtp_dealer__s* d)
-{
-    uzmtp_msg_s* deleteme;
-    while (d->incoming) {
-        deleteme = pop_incoming(d);
-        uzmtp_msg_destroy(&deleteme);
-    }
-}
-
-//
-//
-//

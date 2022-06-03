@@ -14,6 +14,8 @@ extern "C" {
 #include "uzmtp_platform.h"
 
 #define UZMTP_MSG_SIZE sizeof(uintptr_t) + sizeof(size_t) + sizeof(uint8_t)
+#define UZMTP_DEALER_SIZE                                                      \
+    sizeof(uintptr_t) * 4 + sizeof(int) + sizeof(size_t) + 10
 
 typedef struct uzmtp_msg_s
 {
@@ -24,7 +26,14 @@ typedef struct uzmtp_msg_s
     };
 } uzmtp_msg_s;
 
-typedef struct uzmtp_dealer__s uzmtp_dealer_s;
+typedef struct uzmtp_dealer_s
+{
+    union
+    {
+        max_align_t a;
+        char __bytes[UZMTP_DEALER_SIZE];
+    };
+} uzmtp_dealer_s;
 
 typedef void uzmtp_connection;
 
@@ -48,24 +57,15 @@ typedef enum
 
 typedef enum
 {
-    UZMTP_ERROR_VERSION = 0,
-    UZMTP_ERROR_MEMORY,
-    UZMTP_ERROR_SEND,
-    UZMTP_ERROR_RECV,
-    UZMTP_ERROR_PROTOCOL
+    UZMTP_ERROR_VERSION = -2,
+    UZMTP_ERROR_MEMORY = -3,
+    UZMTP_ERROR_SEND = -4,
+    UZMTP_ERROR_RECV = -5,
+    UZMTP_ERROR_PROTOCOL = -6,
+    UZMTP_WANT_MORE = -32
 } EUZMTP_ERROR;
 
-typedef int (*uzmtp_want_write_fn)(uzmtp_dealer_s*, const uint8_t*, uint32_t);
-typedef int (*uzmtp_recv_fn)(uzmtp_dealer_s*, uint32_t);
-typedef void (*uzmtp_error_fn)(uzmtp_dealer_s*, EUZMTP_ERROR);
-
-// Context callbacks
-typedef struct
-{
-    uzmtp_want_write_fn want_write;
-    uzmtp_recv_fn on_recv;
-    uzmtp_error_fn on_error;
-} uzmtp_dealer_settings;
+typedef int (*uzmtp_send_fn)(uzmtp_dealer_s*, const uint8_t*, uint32_t);
 
 #ifdef __cplusplus
 }

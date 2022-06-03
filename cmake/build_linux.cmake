@@ -2,16 +2,8 @@
 # Add source
 #------------------------------------------------------------------------------
 set(SOURCES
-    # ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_dealer.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_dealer.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_msg.c
-)
-
-#------------------------------------------------------------------------------
-# Add headers
-#------------------------------------------------------------------------------
-set(HEADERS
-    # ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_dealer.h
-    # ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_msg.h
 )
 
 #------------------------------------------------------------------------------
@@ -34,7 +26,7 @@ configure_file(
 #------------------------------------------------------------------------------
 # Add library
 #------------------------------------------------------------------------------
-add_library(uzmtp ${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+add_library(uzmtp ${SOURCES} ${PUBLIC_HEADERS})
 target_include_directories(uzmtp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(uzmtp PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
@@ -65,14 +57,14 @@ if(UZMTP_ENABLE_TESTING)
     add_custom_target(node_modules DEPENDS "${FIXTURE_DIR}/node_modules")
 
     # Build dealer unit test exe
-    # add_executable(uzmtp-test-unit-dealer 
-    #     ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/dealer.c
-    #     ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.c
-    #     ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.h
-    # )
-    # target_link_libraries(uzmtp-test-unit-dealer uzmtp cmocka)
-    # install(TARGETS uzmtp-test-unit-dealer DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-    # add_test(NAME uzmtp-test-unit-dealer COMMAND uzmtp-test-unit-dealer)
+    add_executable(uzmtp-test-unit-dealer 
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/dealer.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.h
+    )
+    target_link_libraries(uzmtp-test-unit-dealer uzmtp cmocka)
+    install(TARGETS uzmtp-test-unit-dealer DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    add_test(NAME uzmtp-test-unit-dealer COMMAND uzmtp-test-unit-dealer)
 
     # Build msg unit test exe
     add_executable(uzmtp-test-unit-msg

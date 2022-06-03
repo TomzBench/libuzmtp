@@ -69,15 +69,15 @@ uzmtp_msg_flags(uzmtp_msg__s* self)
 }
 
 void
-uzmtp_msg_set_more(uzmtp_msg__s* self)
+uzmtp_msg_flags_set(uzmtp_msg__s* self, uint8_t flags)
 {
-    self->flags |= UZMTP_MSG_MORE;
+    self->flags |= flags;
 }
 
 void
-uzmtp_msg_clr_more(uzmtp_msg__s* self)
+uzmtp_msg_flags_clr(uzmtp_msg__s* self, uint8_t flags)
 {
-    self->flags &= ~(UZMTP_MSG_MORE);
+    self->flags &= ~flags;
 }
 
 int
@@ -98,8 +98,20 @@ uzmtp_msg_data(uzmtp_msg__s* self)
     return self->data;
 }
 
+void
+uzmtp_msg_data_set(uzmtp_msg__s* self, uint8_t* data)
+{
+    self->data = data;
+}
+
 size_t
 uzmtp_msg_size(uzmtp_msg__s* self)
 {
     return self->size;
+}
+
+void
+uzmtp_msg_size_set(uzmtp_msg__s* self, size_t size)
+{
+    self->size = size;
 }

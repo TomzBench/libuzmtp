@@ -112,13 +112,13 @@ test_zmtp_msg_set_get_clr_more(void** context_p)
     uzmtp_msg_init(&msg, 0, "", 1);
     assert_false(uzmtp_msg_is_more(&msg));
     assert_int_equal(uzmtp_msg_flags(&msg), 0);
-    uzmtp_msg_set_more(&msg);
+    uzmtp_msg_flags_set(&msg, UZMTP_MSG_MORE);
     assert_true(uzmtp_msg_is_more(&msg));
     assert_int_equal(uzmtp_msg_flags(&msg), UZMTP_MSG_MORE);
-    uzmtp_msg_clr_more(&msg);
+    uzmtp_msg_flags_clr(&msg, UZMTP_MSG_MORE);
     assert_false(uzmtp_msg_is_more(&msg));
     assert_int_equal(uzmtp_msg_flags(&msg), 0);
-    uzmtp_msg_clr_more(&msg);
+    uzmtp_msg_flags_clr(&msg, UZMTP_MSG_MORE);
     uzmtp_msg_deinit(&msg);
 }
 
