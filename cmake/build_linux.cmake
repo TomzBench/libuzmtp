@@ -2,7 +2,7 @@
 # Add source
 #------------------------------------------------------------------------------
 set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_dealer.c
+    # ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_dealer.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_msg.c
 )
 
@@ -10,7 +10,7 @@ set(SOURCES
 # Add headers
 #------------------------------------------------------------------------------
 set(HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_dealer.h
+    # ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_dealer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_msg.h
 )
 
@@ -65,35 +65,33 @@ if(UZMTP_ENABLE_TESTING)
     add_custom_target(node_modules DEPENDS "${FIXTURE_DIR}/node_modules")
 
     # Build dealer unit test exe
-    add_executable(uzmtp-test-unit-dealer 
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/dealer.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.h
-    )
-    target_link_libraries(uzmtp-test-unit-dealer uzmtp cmocka)
-    install(TARGETS uzmtp-test-unit-dealer DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    # add_executable(uzmtp-test-unit-dealer 
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/dealer.c
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.c
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.h
+    # )
+    # target_link_libraries(uzmtp-test-unit-dealer uzmtp cmocka)
+    # install(TARGETS uzmtp-test-unit-dealer DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    # add_test(NAME uzmtp-test-unit-dealer COMMAND uzmtp-test-unit-dealer)
 
     # Build msg unit test exe
     add_executable(uzmtp-test-unit-msg
         ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/msg.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.h
+    #   ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.c
+    #   ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.h
     )
     target_link_libraries(uzmtp-test-unit-msg uzmtp cmocka)
     install(TARGETS uzmtp-test-unit-msg DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    add_test(NAME uzmtp-test-unit-msg COMMAND uzmtp-test-unit-msg)
 
 
     # Build integration test exe
-    add_executable(uzmtp-test-integration ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/main.c)
-    target_link_libraries(uzmtp-test-integration zmq-static uzmtp ${CMAKE_THREAD_LIBS_INIT} rt)
-
-    # Add tests
-    set(TEST_COMMAND "node ${FIXTURE_DIR}/index.js ${CMAKE_BINARY_DIR}/uzmtp-test-integration")
-    add_test(NAME uzmtp-test-unit-msg COMMAND uzmtp-test-unit-msg)
-    add_test(NAME uzmtp-test-unit-dealer COMMAND uzmtp-test-unit-dealer)
-    add_test(NAME uzmtp-test-integration 
-        COMMAND "node"
-        "${FIXTURE_DIR}/index.js"
-        "${CMAKE_BINARY_DIR}/uzmtp-test-integration")
-    add_dependencies(uzmtp-test-integration node_modules)
+    # add_executable(uzmtp-test-integration ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/main.c)
+    # target_link_libraries(uzmtp-test-integration zmq-static uzmtp ${CMAKE_THREAD_LIBS_INIT} rt)
+    # set(TEST_COMMAND "node ${FIXTURE_DIR}/index.js ${CMAKE_BINARY_DIR}/uzmtp-test-integration")
+    # add_test(NAME uzmtp-test-integration 
+    #     COMMAND "node"
+    #     "${FIXTURE_DIR}/index.js"
+    #     "${CMAKE_BINARY_DIR}/uzmtp-test-integration")
+    # add_dependencies(uzmtp-test-integration node_modules)
 endif()
