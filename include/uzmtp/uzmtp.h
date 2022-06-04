@@ -33,6 +33,7 @@ void uzmtp_msg_size_set(uzmtp_msg_s* self, size_t);
 void uzmtp_dealer_init(uzmtp_dealer_s*, uzmtp_send_fn fn, void* ctx);
 void uzmtp_dealer_deinit(uzmtp_dealer_s* dealer);
 void* uzmtp_dealer_context(uzmtp_dealer_s* dealer);
+void uzmtp_dealer_context_set(uzmtp_dealer_s*, void*);
 EUZMTP_STATE uzmtp_dealer_state(uzmtp_dealer_s* dealer);
 uzmtp_connection* uzmtp_dealer_connection(uzmtp_dealer_s*);
 uint8_t uzmtp_dealer_ready(uzmtp_dealer_s*);

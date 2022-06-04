@@ -83,6 +83,12 @@ uzmtp_dealer_context(uzmtp_dealer_s* dealer)
     return ((uzmtp_dealer__s*)dealer)->context;
 }
 
+void
+uzmtp_dealer_context_set(uzmtp_dealer_s* dealer, void* context)
+{
+    ((uzmtp_dealer__s*)dealer)->context = context;
+}
+
 uzmtp_connection*
 uzmtp_dealer_connection(uzmtp_dealer_s* dealer)
 {
@@ -190,7 +196,11 @@ start:
         case UZMTP_RECV_BODY:
             remaining = uzmtp_msg_size(&msgs[d->m]) - d->b;
             c = sz > remaining ? remaining : sz;
-            uzmtp_msg_data_set(&msgs[d->m], (uint8_t*)bytes);
+            if (!uzmtp_msg_data(&msgs[d->m])) {
+                // TODO should handle this in a seperate state
+                //      is done this way because of refactor
+                uzmtp_msg_data_set(&msgs[d->m], (uint8_t*)bytes);
+            }
             d->b += c;
             bytes += c;
             sz -= c;
