@@ -56,12 +56,16 @@ static const uzmtp_greeting greeting = {
                 '\0', '\0', '\0', '\0', '\0', '\0', '\0' }
 };
 
-// Private prototypes
-static int process_command(uzmtp_dealer__s* d, uzmtp_msg_s* msg);
-static void free_incoming(uzmtp_dealer__s* d);
-static void push_incoming(uzmtp_dealer__s* d, uzmtp_msg_s** msg_p);
-static uzmtp_msg_s* pop_incoming(uzmtp_dealer__s* d);
-
+static int
+process_command(uzmtp_dealer__s* d, uzmtp_msg_s* msg)
+{
+    if ((uzmtp_msg_size(msg) >= 6) &&
+        !(memcmp("\5READY", uzmtp_msg_data(msg), 6))) {
+        d->ready = 1;
+        return 0;
+    }
+    return -1;
+}
 void
 uzmtp_dealer_init(uzmtp_dealer_s* dealer, uzmtp_send_fn fn, void* ctx)
 {
@@ -298,13 +302,3 @@ uzmtp_dealer_send(uzmtp_dealer_s* dealer, uzmtp_msg_s* msg)
     return err;
 }
 
-static int
-process_command(uzmtp_dealer__s* d, uzmtp_msg_s* msg)
-{
-    if ((uzmtp_msg_size(msg) >= 6) &&
-        !(memcmp("\5READY", uzmtp_msg_data(msg), 6))) {
-        d->ready = 1;
-        return 0;
-    }
-    return -1;
-}
