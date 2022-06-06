@@ -12,70 +12,22 @@ static int test_passed = 0, test_completed = 0;
 
 // demo callbacks
 int
-demo_callback_want_write(uzmtp_dealer_s* dealer, const uint8_t* b, uint32_t sz)
+demo_send(uzmtp_dealer_s* dealer, const uint8_t* b, uint32_t sz)
 {
-    int connection = *(int*)uzmtp_dealer_connection_get(dealer);
+    int connection = *(int*)uzmtp_dealer_connection(dealer);
     return send(connection, b, sz, 0) == sz ? 0 : -1;
 }
-
-int
-demo_callback_on_recv(uzmtp_dealer_s* dealer, uint32_t n)
-{
-    int pass = 0;
-    uzmtp_msg_s* msg;
-
-    // fail
-    if (!(n == 2)) return -1;
-
-    // Verify hello echo
-    msg = uzmtp_dealer_pop_incoming(dealer);
-    if (msg) {
-        if (((uzmtp_msg_size(msg) == 5)) &&
-            (!memcmp(uzmtp_msg_data(msg), "HELLO", 5))) {
-            pass++;
-        }
-        uzmtp_msg_destroy(&msg);
-    }
-
-    // Verify world echo
-    msg = uzmtp_dealer_pop_incoming(dealer);
-    if (msg) {
-        if (((uzmtp_msg_size(msg) == 5)) &&
-            (!memcmp(uzmtp_msg_data(msg), "WORLD", 5))) {
-            pass++;
-        }
-        uzmtp_msg_destroy(&msg);
-    }
-
-    test_completed = 1;
-    test_passed = pass == 2 ? 1 : 0;
-
-    return 0;
-}
-
-void
-demo_callback_on_error(uzmtp_dealer_s* dealer, EUZMTP_ERROR error)
-{
-    ((void)dealer);
-    ((void)error);
-}
-
-uzmtp_dealer_settings demo_settings = { //
-    .want_write = demo_callback_want_write,
-    .on_recv = demo_callback_on_recv,
-    .on_error = demo_callback_on_error
-};
 
 int
 main(int argc, char* argv[])
 {
     ((void)argc);
     ((void)argv);
-    uint8_t buffer[1024];
+    uint8_t buff[1024];
     struct sockaddr_in addr;
-    int connection, err, sz, echo_sent = 0;
-    uzmtp_dealer_s* dealer;
-    uzmtp_msg_s* msg;
+    int connection, err, n = 0, sz, echo_sent = 0;
+    uzmtp_dealer_s dealer;
+    uzmtp_msg_s out, in[2];
     const char* ip = "127.0.0.1";
     uint32_t port = 33558;
 
@@ -97,42 +49,45 @@ main(int argc, char* argv[])
     }
 
     // Create dealer instance
-    dealer = uzmtp_dealer_new(&demo_settings);
-    if (!dealer) {
-        close(connection);
-        return -1;
-    }
+    uzmtp_dealer_init(&dealer, demo_send, NULL);
 
     // Connect our dealer to socket
-    err = uzmtp_dealer_connect(dealer, &connection);
+    err = uzmtp_dealer_connect(&dealer, &connection);
     if (err) {
-        uzmtp_dealer_destroy(&dealer);
+        uzmtp_dealer_deinit(&dealer);
         close(connection);
         return -1;
     }
 
     while (!test_completed) {
-        if (uzmtp_dealer_ready(dealer) && !echo_sent) {
-            // Send frames echo server, expect HELLO WORLD in our recv callback
+        if (uzmtp_dealer_ready(&dealer) && !echo_sent) {
             echo_sent = 1;
+            // Send frames echo server, expect HELLO WORLD in our recv callback
 
-            msg = uzmtp_msg_new_from_const_data(UZMTP_MSG_MORE, "hello", 5);
-            if (!msg) break;
-            uzmtp_dealer_send(dealer, &msg);
-            if (msg) break;
-            msg = uzmtp_msg_new_from_const_data(0, "world", 5);
-            if (!msg) break;
-            uzmtp_dealer_send(dealer, &msg);
-            if (msg) break;
+            uzmtp_msg_init_str(&out, UZMTP_MSG_MORE, "hello");
+            uzmtp_dealer_send(&dealer, &out);
+            uzmtp_msg_init_str(&out, 0, "world");
+            uzmtp_dealer_send(&dealer, &out);
         }
 
-        sz = recv(connection, buffer, sizeof(buffer), 0);
+        sz = recv(connection, &buff[n], sizeof(buff) - n, 0);
         if (sz <= 0) break;
-        err = uzmtp_dealer_parse(dealer, buffer, sz);
-        if (err) break;
+        err = uzmtp_dealer_parse(&dealer, &buff[n], sz, in, 2);
+        if (err == UZMTP_WANT_MORE) {
+            n += err;
+        }
+        else if (err >= 0) {
+            break;
+        }
     }
 
-    uzmtp_dealer_destroy(&dealer);
+    if ((uzmtp_msg_size(&in[0]) == 5) && (uzmtp_msg_size(&in[1]) == 5) &&
+        (!memcmp(uzmtp_msg_data(&in[0]), "HELLO", 5)) &&
+        (!memcmp(uzmtp_msg_data(&in[1]), "WORLD", 5))) {
+        test_passed = 1;
+    }
+
+    uzmtp_dealer_deinit(&dealer);
     close(connection);
-    return test_passed ? 0 : -1;
+    return test_passed ? 0 : 1;
 }

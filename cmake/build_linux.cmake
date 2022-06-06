@@ -69,8 +69,6 @@ if(UZMTP_ENABLE_TESTING)
     # Build msg unit test exe
     add_executable(uzmtp-test-unit-msg
         ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/msg.c
-    #   ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.c
-    #   ${CMAKE_CURRENT_SOURCE_DIR}/test/unit/helpers.h
     )
     target_link_libraries(uzmtp-test-unit-msg uzmtp cmocka)
     install(TARGETS uzmtp-test-unit-msg DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
@@ -78,12 +76,12 @@ if(UZMTP_ENABLE_TESTING)
 
 
     # Build integration test exe
-    # add_executable(uzmtp-test-integration ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/main.c)
-    # target_link_libraries(uzmtp-test-integration zmq-static uzmtp ${CMAKE_THREAD_LIBS_INIT} rt)
-    # set(TEST_COMMAND "node ${FIXTURE_DIR}/index.js ${CMAKE_BINARY_DIR}/uzmtp-test-integration")
-    # add_test(NAME uzmtp-test-integration 
-    #     COMMAND "node"
-    #     "${FIXTURE_DIR}/index.js"
-    #     "${CMAKE_BINARY_DIR}/uzmtp-test-integration")
-    # add_dependencies(uzmtp-test-integration node_modules)
+    add_executable(uzmtp-test-integration ${CMAKE_CURRENT_SOURCE_DIR}/test/integration/main.c)
+    target_link_libraries(uzmtp-test-integration zmq-static uzmtp ${CMAKE_THREAD_LIBS_INIT} rt)
+    set(TEST_COMMAND "node ${FIXTURE_DIR}/index.js ${CMAKE_BINARY_DIR}/uzmtp-test-integration")
+    add_test(NAME uzmtp-test-integration 
+        COMMAND "node"
+        "${FIXTURE_DIR}/index.js"
+        "${CMAKE_BINARY_DIR}/uzmtp-test-integration")
+    add_dependencies(uzmtp-test-integration node_modules)
 endif()
