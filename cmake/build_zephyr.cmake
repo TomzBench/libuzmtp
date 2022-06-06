@@ -7,14 +7,6 @@ set(SOURCES
 )
 
 #------------------------------------------------------------------------------
-# Add headers
-#------------------------------------------------------------------------------
-set(HEADERS
-    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/src/uzmtp_dealer.h
-    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/src/uzmtp_msg.h
-)
-
-#------------------------------------------------------------------------------
 # Add public headers
 #------------------------------------------------------------------------------
 set(PUBLIC_HEADERS
@@ -36,5 +28,5 @@ configure_file(
 #------------------------------------------------------------------------------
 zephyr_library()
 zephyr_include_directories(${ZEPHYR_LIBUZMTP_MODULE_DIR}/include)
-zephyr_library_sources(${SOURCES} ${HEADERS} ${PUBLIC_HEADERS})
+zephyr_library_sources(${SOURCES} ${PUBLIC_HEADERS})
 zephyr_library_include_directories(${ZEPHYR_LIBUZMTP_MODULE_DIR}/include)

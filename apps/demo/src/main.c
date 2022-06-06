@@ -65,20 +65,23 @@ demo_connect(int fd, const char* server, int port)
 }
 
 static int
-demo_recv(uzmtp_dealer_s* dealer, uint8_t* buf, size_t l)
+demo_recv_ready(uzmtp_dealer_s* dealer)
 {
-    int ret, fd = *(int*)uzmtp_dealer_connection_get(dealer);
+    uint8_t buf[64];
+    uzmtp_msg_s msg;
+    int ret, fd = *(int*)uzmtp_dealer_connection(dealer);
+    int c = 0;
 
-    LOG_INF("Receiving");
-    ret = recv(fd, buf, sizeof(buf), 0);
-    LOG_INF("Recv (%d)", ret);
-    if (ret <= 0) {
-        LOG_ERR("Recv error (%d) (%d)", ret, errno);
-        return ret;
-    }
-    ret = uzmtp_dealer_parse(dealer, buf, ret);
-    if (ret) {
-        LOG_ERR("Uzmtp parse error (%d)", ret);
+    while (!uzmtp_dealer_ready(dealer)) {
+        LOG_INF("Receiving");
+        ret = recv(fd, &buf[c], sizeof(buf) - c, 0);
+        LOG_INF("Recv (%d)", ret);
+        if (ret <= 0) {
+            LOG_ERR("Recv error (%d) (%d)", ret, errno);
+            return ret;
+        }
+        ret = uzmtp_dealer_parse(dealer, &buf[c], ret, &msg, 1);
+        if (!(ret == UZMTP_WANT_MORE)) break;
     }
     return ret;
 }
@@ -86,47 +89,19 @@ demo_recv(uzmtp_dealer_s* dealer, uint8_t* buf, size_t l)
 static int
 demo_cb_want_write(uzmtp_dealer_s* dealer, const uint8_t* b, uint32_t sz)
 {
-    int connection = *(int*)uzmtp_dealer_connection_get(dealer);
+    int connection = *(int*)uzmtp_dealer_connection(dealer);
     // return sendall(connection, b, sz) == sz ? 0 : -1;
     return sendall(connection, b, sz);
 }
 
-static int
-demo_cb_on_recv(uzmtp_dealer_s* dealer, uint32_t n)
-{
-    (*(int*)uzmtp_dealer_context_get(dealer))++;
-    while (n--) {
-        uzmtp_msg_s* msg = uzmtp_dealer_pop_incoming(dealer);
-        assert(msg);
-        LOG_INF(
-            "Received: [%.*s]", (int)uzmtp_msg_size(msg), uzmtp_msg_data(msg));
-        uzmtp_msg_destroy(&msg);
-    }
-
-    return 0;
-}
-
-static void
-demo_cb_on_error(uzmtp_dealer_s* dealer, EUZMTP_ERROR error)
-{
-    ((void)dealer);
-    LOG_ERR("UZMTP ERROR %d", error);
-    LOG_ERR("Error code: %d", errno);
-}
-
-uzmtp_dealer_settings demo_settings = { //
-    .want_write = demo_cb_want_write,
-    .on_recv = demo_cb_on_recv,
-    .on_error = demo_cb_on_error
-};
-
 void
 main(void)
 {
-    uzmtp_dealer_s* dealer;
-    uzmtp_msg_s* msg;
+    uzmtp_dealer_s dealer;
     uint8_t buf[MAX_BUF_LEN];
-    int fd, ret, state = 0;
+    uzmtp_msg_s in[2];
+    uzmtp_msg_s out;
+    int fd, n = 0, ret, recvd, state = 0;
 
     LOG_INF("Starting application...");
 
@@ -145,59 +120,61 @@ main(void)
 
     LOG_INF("Connected to %s:%d", SERVER, PORT);
 
-    dealer = uzmtp_dealer_new(&demo_settings);
-    if (!dealer) {
-        LOG_ERR("Fatal error, failed to create dealer socket");
-        close(fd);
-        exit(-1);
-    }
+    uzmtp_dealer_init(&dealer, demo_cb_want_write, NULL);
 
-    ret = uzmtp_dealer_connect(dealer, &fd);
+    ret = uzmtp_dealer_connect(&dealer, &fd);
     if (ret) {
         LOG_ERR("Fatal error, failed to connect to router socket");
-        uzmtp_dealer_destroy(&dealer);
+        uzmtp_dealer_deinit(&dealer);
         close(fd);
         exit(-1);
     }
 
     LOG_INF("Dealer handshake started...");
-    while (!uzmtp_dealer_ready(dealer)) demo_recv(dealer, buf, sizeof(buf));
+    demo_recv_ready(&dealer);
     LOG_INF("Dealer handshake complete...");
 
-    uzmtp_dealer_context_set(dealer, &state);
-
     while (1) {
-        k_msleep(1000);
+        k_msleep(200);
         if (state == 0) {
             // Write to peer
-            msg = uzmtp_msg_new_from_const_data(UZMTP_MSG_MORE, "hello", 5);
-            if (!msg) break;
-            ret = uzmtp_dealer_send(dealer, &msg);
+            uzmtp_msg_init_str(&out, UZMTP_MSG_MORE, "hello");
+            ret = uzmtp_dealer_send(&dealer, &out);
             LOG_INF("hello sent... (%d)", ret);
-            if (msg) break;
-            msg = uzmtp_msg_new_from_const_data(0, "world", 5);
-            if (!msg) break;
-            ret = uzmtp_dealer_send(dealer, &msg);
+            uzmtp_msg_init_str(&out, 0, "world");
+            ret = uzmtp_dealer_send(&dealer, &out);
             LOG_INF("world sent... (%d)", ret);
-            if (msg) break;
 
             state++;
         }
 
         // Receive from peer
-        ret = demo_recv(dealer, buf, sizeof(buf));
-        if (ret < 0) {
-            LOG_ERR("Exiting from recv error (%d)", errno);
+        recvd = recv(fd, &buf[n], sizeof(buf) - n, 0);
+        if (recvd <= 0) {
+            LOG_ERR("Recv error (%d) (%d)", recvd, errno);
+            ret = -1;
             break;
         }
-
-        // end app
-        if (state == 2) break;
+        ret = uzmtp_dealer_parse(&dealer, &buf[n], recvd, in, 2);
+        if (ret == UZMTP_WANT_MORE) {
+            n += recvd;
+        }
+        else if (ret >= 0) {
+            break;
+        }
     }
 
-    LOG_INF("Application complete %s", state == 2 ? "success" : "fail");
+    if (uzmtp_msg_size(&in[0]) == 5 && uzmtp_msg_size(&in[1]) == 5 &&
+        !memcmp(uzmtp_msg_data(&in[0]), "HELLO", 5) &&
+        !memcmp(uzmtp_msg_data(&in[1]), "WORLD", 5)
 
-    uzmtp_dealer_destroy(&dealer);
+    ) {
+        LOG_INF("Application complete %s", "SUCCESS");
+    }
+    else {
+        LOG_ERR("Application complete %s", "FAIL");
+    }
+
+    uzmtp_dealer_deinit(&dealer);
     close(fd);
-    //exit(state == 2 ? 0 : state);
 }
