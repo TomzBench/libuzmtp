@@ -369,6 +369,41 @@ test_zmtp_dealer_recv_message_ok(void** context_p)
 }
 
 static void
+test_zmtp_dealer_recv_message_stream_ok(void** context_p)
+{
+    ((void)context_p);
+    int connection = 0, sz, ret;
+    uint8_t buffer[1024];
+    uzmtp_msg_s msg;
+    uzmtp_dealer_s d;
+    uzmtp_dealer_init(&d, test_send_ok, NULL);
+    uzmtp_dealer_connect(&d, &connection);
+
+    sz = test_print_incoming(buffer, (uint8_t*)"hello", 5, 0);
+
+    sz += test_print_incoming(&buffer[sz], (uint8_t*)"world", 5, 0);
+
+    test_zmtp_dealer_drive_ready(&d, &msg, 1);
+    ret = uzmtp_dealer_parse(&d, buffer, sz, &msg, 1);
+    assert_int_equal(ret, sz >> 1);
+    assert_int_equal(uzmtp_dealer_count(&d), 1);
+    assert_int_equal(uzmtp_msg_size(&msg), 5);
+    assert_false(uzmtp_msg_is_more(&msg));
+    assert_memory_equal(uzmtp_msg_data(&msg), "hello", 5);
+
+    ret = uzmtp_dealer_parse(&d, &buffer[sz >> 1], sz >> 1, &msg, 1);
+    assert_int_equal(ret, sz >> 1);
+    assert_int_equal(uzmtp_dealer_count(&d), 1);
+    assert_int_equal(uzmtp_msg_size(&msg), 5);
+    assert_false(uzmtp_msg_is_more(&msg));
+    assert_memory_equal(uzmtp_msg_data(&msg), "world", 5);
+
+    // Cleanup
+    uzmtp_dealer_deinit(&d);
+    test_state_reset();
+}
+
+static void
 test_zmtp_dealer_recv_message_large(void** context_p)
 {
     ((void)context_p);
@@ -557,6 +592,7 @@ main(void)
         cmocka_unit_test(test_zmtp_dealer_connect_recv_ready_ok),
         cmocka_unit_test(test_zmtp_dealer_connect_recv_ready_error),
         cmocka_unit_test(test_zmtp_dealer_recv_message_ok),
+        cmocka_unit_test(test_zmtp_dealer_recv_message_stream_ok),
         cmocka_unit_test(test_zmtp_dealer_recv_message_large),
         cmocka_unit_test(test_zmtp_dealer_recv_message_large_split),
         cmocka_unit_test(test_zmtp_dealer_recv_overflow),

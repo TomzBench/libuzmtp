@@ -12,10 +12,11 @@ typedef struct
         struct
         {
             uzmtp_connection* connection;
-            uzmtp_send_fn send;
             void* context;
-            EUZMTP_STATE state;
+            uzmtp_send_fn send;
             size_t curr_size;
+            EUZMTP_STATE state;
+            uint32_t curr_count;
             uint32_t b;
             uint32_t m;
             uint8_t ready;
@@ -110,7 +111,7 @@ uzmtp_dealer_ready(uzmtp_dealer_s* d)
 uint32_t
 uzmtp_dealer_count(uzmtp_dealer_s* d)
 {
-    return ((uzmtp_dealer__s*)d)->m;
+    return ((uzmtp_dealer__s*)d)->curr_count;
 }
 
 int
@@ -233,7 +234,8 @@ start:
                 else {
                     d->m++;
                     if (!(flags & UZMTP_MSG_MORE)) {
-                        ret = d->m;
+                        ret = d->curr_count = d->m;
+                        d->m = 0;
                     }
                     else if (flags & UZMTP_MSG_MORE) {
                     }

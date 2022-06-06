@@ -15,7 +15,7 @@ extern "C" {
 
 #define UZMTP_MSG_SIZE sizeof(uintptr_t) + sizeof(size_t) + sizeof(uint8_t)
 #define UZMTP_DEALER_SIZE                                                      \
-    sizeof(uintptr_t) * 4 + sizeof(int) + sizeof(size_t) + 10
+    sizeof(uintptr_t) * 3 + sizeof(int) + sizeof(size_t) + 13
 
 typedef struct uzmtp_msg_s
 {
