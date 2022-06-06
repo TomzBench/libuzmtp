@@ -58,7 +58,7 @@ typedef enum
 typedef enum
 {
     UZMTP_ERROR_VERSION = -2,
-    UZMTP_ERROR_MEMORY = -3,
+    UZMTP_ERROR_OVERFLOW = -3,
     UZMTP_ERROR_SEND = -4,
     UZMTP_ERROR_RECV = -5,
     UZMTP_ERROR_PROTOCOL = -6,

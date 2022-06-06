@@ -163,10 +163,16 @@ start:
             if (!sz) break;
         case UZMTP_CONNECT_WANT_READY: d->state++;
         case UZMTP_RECV_FLAGS:
-            uzmtp_msg_init(&msgs[d->m], *bytes, NULL, 0);
-            d->state++;
-            bytes++;
-            sz--;
+            if (d->m < n_msg) {
+                uzmtp_msg_init(&msgs[d->m], *bytes, NULL, 0);
+                d->state++;
+                bytes++;
+                sz--;
+            }
+            else {
+                ret = UZMTP_ERROR_OVERFLOW;
+                break;
+            }
             if (!sz) break;
         case UZMTP_RECV_LENGTH:
             if (uzmtp_msg_is_large(&msgs[d->m])) {
@@ -221,11 +227,9 @@ start:
                 else {
                     d->m++;
                     if (!(flags & UZMTP_MSG_MORE)) {
-                        // TODO return code signals process m messages
                         ret = d->m;
                     }
                     else if (flags & UZMTP_MSG_MORE) {
-                        // TODO return code want more
                     }
                 }
             }

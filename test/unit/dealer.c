@@ -452,6 +452,30 @@ test_zmtp_dealer_recv_message_large_split(void** context_p)
     // Cleanup
 }
 
+void
+test_zmtp_dealer_recv_overflow(void** context_p)
+{
+    ((void)context_p);
+    int connection = 0, sz, ret;
+    uint8_t buffer[1024];
+    uzmtp_msg_s msgs[2];
+    uzmtp_dealer_s d;
+    uzmtp_dealer_init(&d, test_send_ok, NULL);
+    uzmtp_dealer_connect(&d, &connection);
+
+    sz = test_print_incoming(buffer, (uint8_t*)"a", 1, UZMTP_MSG_MORE);
+    sz += test_print_incoming(&buffer[sz], (uint8_t*)"b", 1, UZMTP_MSG_MORE);
+    sz += test_print_incoming(&buffer[sz], (uint8_t*)"c", 1, 0);
+
+    test_zmtp_dealer_drive_ready(&d, msgs, 2);
+    ret = uzmtp_dealer_parse(&d, buffer, sz, msgs, 2);
+    assert_int_equal(ret, UZMTP_ERROR_OVERFLOW);
+
+    // Cleanup
+    uzmtp_dealer_deinit(&d);
+    test_state_reset();
+}
+
 static int
 test_send_track_outgoing(uzmtp_dealer_s* dealer, const uint8_t* b, uint32_t l)
 {
@@ -514,8 +538,6 @@ test_zmtp_dealer_send_message_large(void** context_p)
     uzmtp_dealer_deinit(&a);
     uzmtp_dealer_deinit(&b);
 }
-/*
- */
 
 int
 main(void)
@@ -533,6 +555,7 @@ main(void)
         cmocka_unit_test(test_zmtp_dealer_recv_message_ok),
         cmocka_unit_test(test_zmtp_dealer_recv_message_large),
         cmocka_unit_test(test_zmtp_dealer_recv_message_large_split),
+        cmocka_unit_test(test_zmtp_dealer_recv_overflow),
         cmocka_unit_test(test_zmtp_dealer_send_message_large)
     };
 
