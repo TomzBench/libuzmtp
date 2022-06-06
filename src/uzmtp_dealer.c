@@ -107,6 +107,12 @@ uzmtp_dealer_ready(uzmtp_dealer_s* d)
     return ((uzmtp_dealer__s*)d)->ready;
 }
 
+uint32_t
+uzmtp_dealer_count(uzmtp_dealer_s* d)
+{
+    return ((uzmtp_dealer__s*)d)->m;
+}
+
 int
 uzmtp_dealer_connect(uzmtp_dealer_s* d, uzmtp_connection* c)
 {
@@ -129,7 +135,7 @@ uzmtp_dealer_parse(
     uzmtp_msg_s* msgs,
     uint32_t n_msg)
 {
-    int ret = 0, flags;
+    int count = sz, ret = 0, flags;
     const uint8_t* ptr = (const uint8_t*)&greeting;
     uint32_t c, remaining;
     uzmtp_dealer__s* d = (uzmtp_dealer__s*)dealer;
@@ -238,7 +244,20 @@ start:
 
     // if more to parse and not in an error state, parse some more
     if (sz && !ret) goto start;
-    return ret;
+
+    // Arrive here, then no more size, or have an error.
+    // if ret < 0, return error code.
+    // if ret = 0, want more
+    // if ret > 0, have message, return bytes parsed
+    if (ret == 0) {
+        return UZMTP_WANT_MORE;
+    }
+    else if (ret > 0) {
+        return count - sz;
+    }
+    else {
+        return ret;
+    }
 }
 
 int

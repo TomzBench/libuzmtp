@@ -248,7 +248,7 @@ test_zmtp_dealer_connect_recv_greeting_ok(void** context_p)
     // Parse incoming greeting and verify outgoing ready
     test_print_greeting(greeting);
     err = uzmtp_dealer_parse(&d, greeting, sizeof(greeting), msgs, 1);
-    assert_int_equal(err, 0);
+    assert_int_equal(err, UZMTP_WANT_MORE);
     assert_int_equal(UZMTP_CONNECT_WANT_READY, uzmtp_dealer_state(&d));
     assert_int_equal(pass, 1);
 
@@ -301,7 +301,7 @@ test_zmtp_dealer_connect_recv_ready_ok(void** context_p)
     err = uzmtp_dealer_parse(&d, buffer, 64, pack, 1);
     sz = test_print_incoming(buffer, ready, sizeof(ready), UZMTP_MSG_COMMAND);
     err = uzmtp_dealer_parse(&d, buffer, sz, pack, 1);
-    assert_int_equal(err, 0);
+    assert_int_equal(err, UZMTP_WANT_MORE);
     assert_int_equal(uzmtp_dealer_ready(&d), 1);
     assert_int_equal(uzmtp_dealer_state(&d), UZMTP_RECV_FLAGS);
 
@@ -354,7 +354,8 @@ test_zmtp_dealer_recv_message_ok(void** context_p)
 
     test_zmtp_dealer_drive_ready(&d, msgs, 2);
     ret = uzmtp_dealer_parse(&d, buffer, sz, msgs, 2);
-    assert_int_equal(ret, 2);
+    assert_int_equal(ret, sz);
+    assert_int_equal(uzmtp_dealer_count(&d), 2);
     assert_int_equal(uzmtp_msg_size(&msgs[0]), 5);
     assert_true(uzmtp_msg_is_more(&msgs[0]));
     assert_memory_equal(uzmtp_msg_data(&msgs[0]), "hello", 5);
@@ -388,7 +389,8 @@ test_zmtp_dealer_recv_message_large(void** context_p)
     // Recv a single large message and verify callback is called
     test_zmtp_dealer_drive_ready(&d, &msg, 1);
     ret = uzmtp_dealer_parse(&d, buffer, sz, &msg, 1);
-    assert_int_equal(ret, 1);
+    assert_int_equal(ret, sz);
+    assert_int_equal(uzmtp_dealer_count(&d), 1);
     assert_int_equal(uzmtp_msg_size(&msg), RECV_LARGE_SZ);
     assert_memory_equal(uzmtp_msg_data(&msg), expect, RECV_LARGE_SZ);
 
@@ -429,11 +431,12 @@ test_zmtp_dealer_recv_message_large_split(void** context_p)
             chunk = remaining < chunks[i] ? remaining : chunks[i];
             ret = uzmtp_dealer_parse(&dealer, ptr, chunk, msgs, 4);
             if (ret > 0) break;
-            assert_int_equal(ret, 0);
+            assert_int_equal(ret, UZMTP_WANT_MORE);
             ptr += chunk;
             remaining -= chunk;
         }
-        assert_int_equal(ret, 3);
+        assert_int_equal(ret, chunk);
+        assert_int_equal(uzmtp_dealer_count(&dealer), 3);
         assert_int_equal(uzmtp_msg_is_more(&msgs[0]), 1);
         assert_int_equal(uzmtp_msg_is_more(&msgs[1]), 1);
         assert_int_equal(uzmtp_msg_is_more(&msgs[2]), 0);
@@ -523,7 +526,8 @@ test_zmtp_dealer_send_message_large(void** context_p)
 
     sz = (uint8_t*)uzmtp_dealer_context(&a) - payload;
     err = uzmtp_dealer_parse(&b, payload, sz, msgs_b, 3);
-    assert_int_equal(err, 3);
+    assert_int_equal(err, sz);
+    assert_int_equal(uzmtp_dealer_count(&b), 3);
     assert_int_equal(uzmtp_msg_is_more(&msgs_b[0]), 1);
     assert_int_equal(uzmtp_msg_is_more(&msgs_b[1]), 1);
     assert_int_equal(uzmtp_msg_is_more(&msgs_b[2]), 0);

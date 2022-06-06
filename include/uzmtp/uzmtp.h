@@ -37,6 +37,7 @@ void uzmtp_dealer_context_set(uzmtp_dealer_s*, void*);
 EUZMTP_STATE uzmtp_dealer_state(uzmtp_dealer_s* dealer);
 uzmtp_connection* uzmtp_dealer_connection(uzmtp_dealer_s*);
 uint8_t uzmtp_dealer_ready(uzmtp_dealer_s*);
+uint32_t uzmtp_dealer_count(uzmtp_dealer_s* d);
 uzmtp_msg_s* uzmtp_dealer_pop_incoming(uzmtp_dealer_s*);
 uint32_t uzmtp_dealer_incoming_count(uzmtp_dealer_s*);
 int uzmtp_dealer_connect(uzmtp_dealer_s* dealer, uzmtp_connection*);
