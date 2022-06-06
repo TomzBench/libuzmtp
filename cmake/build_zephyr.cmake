@@ -2,8 +2,8 @@
 # Add source
 #------------------------------------------------------------------------------
 set(SOURCES
-    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/src/uzmtp_dealer.c
-    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/src/uzmtp_msg.c
+    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/src/dealer.c
+    ${ZEPHYR_LIBUZMTP_MODULE_DIR}/src/msg.c
 )
 
 #------------------------------------------------------------------------------

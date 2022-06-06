@@ -2,8 +2,8 @@
 # Add source
 #------------------------------------------------------------------------------
 set(SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_dealer.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/uzmtp_msg.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/dealer.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/msg.c
 )
 
 #------------------------------------------------------------------------------
