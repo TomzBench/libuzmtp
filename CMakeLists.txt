@@ -15,6 +15,10 @@ set(CMAKE_MODULES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 set(CMAKE_EXTERNAL "${CMAKE_CURRENT_SOURCE_DIR}/cmake/external")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(NOT EXISTS EXTERNAL_DIR)
+    FILE(MAKE_DIRECTORY ${EXTERNAL_DIR})
+endif()
+
 #------------------------------------------------------------------------------
 # helper modules
 #------------------------------------------------------------------------------
@@ -27,7 +31,7 @@ include(${CMAKE_DIR}/supported_platforms.cmake)
 # Package options
 #------------------------------------------------------------------------------
 option(UZMTP_ENABLE_TESTING "build libuzmtp tests" ON)
-set(UZMTP_PLATFORM "ZEPHYR" CACHE STRING "Host operating system [${SUPPORTED_PLATFORMS}]")
+set(UZMTP_PLATFORM "LINUX" CACHE STRING "Host operating system [${SUPPORTED_PLATFORMS}]")
 
 if(UZMTP_PLATFORM STREQUAL ZEPHYR)
     include(${CMAKE_DIR}/build_zephyr.cmake)
