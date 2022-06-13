@@ -30,7 +30,7 @@ include(${CMAKE_DIR}/supported_platforms.cmake)
 #------------------------------------------------------------------------------
 # Package options
 #------------------------------------------------------------------------------
-option(UZMTP_ENABLE_TESTING "build libuzmtp tests" ON)
+option(UZMTP_ENABLE_TESTING "build libuzmtp tests" OFF)
 set(UZMTP_PLATFORM "LINUX" CACHE STRING "Host operating system [${SUPPORTED_PLATFORMS}]")
 
 if(UZMTP_PLATFORM STREQUAL ZEPHYR)
