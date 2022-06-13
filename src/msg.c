@@ -18,7 +18,7 @@ typedef struct uzmtp_msg__s
             uint8_t flags;
             uint8_t greedy;
         };
-        max_align_t __phantom;
+        uzmtp_max_align __phantom;
     };
 } uzmtp_msg__s;
 

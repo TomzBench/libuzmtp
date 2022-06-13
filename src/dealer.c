@@ -21,7 +21,7 @@ typedef struct
             uint32_t m;
             uint8_t ready;
         };
-        max_align_t __phanton;
+        uzmtp_max_align __phanton;
     };
 } uzmtp_dealer__s;
 

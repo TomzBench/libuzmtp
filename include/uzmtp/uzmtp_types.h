@@ -21,7 +21,7 @@ typedef struct uzmtp_msg_s
 {
     union
     {
-        max_align_t a;
+        uzmtp_max_align a;
         char __bytes[UZMTP_MSG_SIZE];
     };
 } uzmtp_msg_s;
@@ -30,7 +30,7 @@ typedef struct uzmtp_dealer_s
 {
     union
     {
-        max_align_t a;
+        uzmtp_max_align a;
         char __bytes[UZMTP_DEALER_SIZE];
     };
 } uzmtp_dealer_s;

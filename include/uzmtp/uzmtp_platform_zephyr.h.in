@@ -13,5 +13,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <zephyr/types.h>
+
+typedef z_max_align_t uzmtp_max_align;
 
 #endif

@@ -15,4 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef max_align_t uzmtp_max_align;
+
 #endif

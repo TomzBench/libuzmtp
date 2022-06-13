@@ -13,16 +13,16 @@
 #define STACK_SIZE 4096
 
 #if defined(CONFIG_DEMO_REMOTE_IPV4)
-#define SERVER CONFIG_DEMO_IPV4
+#define APP_SERVER CONFIG_DEMO_IPV4
 #else
 //#define SERVER "192.168.0.31"
-#define SERVER "192.0.2.2"
+#define APP_SERVER "192.0.2.2"
 #endif
 
 #if defined(CONFIG_DEMO_REMOTE_PORT)
-#define SERVER CONFIG_DEMO_PORT
+#define APP_PORT CONFIG_DEMO_PORT
 #else
-#define PORT 33558
+#define APP_PORT 33558
 #endif
 
 LOG_MODULE_REGISTER(main);
@@ -58,7 +58,7 @@ demo_connect(int fd, const char* server, int port)
     LOG_INF("Attempting to connect to %s:%d", server, port);
     ret = connect(fd, &sockaddr, sizeof(sockaddr));
     if (ret < 0) {
-        LOG_ERR("Cannot connect to %s:%d", SERVER, PORT);
+        LOG_ERR("Cannot connect to %s:%d", APP_SERVER, APP_PORT);
         LOG_ERR("Error code: %d", errno);
     }
     return ret;
@@ -107,18 +107,18 @@ main(void)
 
     fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (fd < 0) {
-        LOG_ERR("Fatel error, failed to create %s:%d socket", SERVER, PORT);
+        LOG_ERR("Fatel error, failed to create %s:%d", APP_SERVER, APP_PORT);
         exit(fd);
     }
 
-    ret = demo_connect(fd, SERVER, PORT);
+    ret = demo_connect(fd, APP_SERVER, APP_PORT);
     if (ret < 0) {
-        LOG_ERR("Fatal error, failed to connect to %s:%d", SERVER, PORT);
+        LOG_ERR("Fatal error, failed to connect %s:%d", APP_SERVER, APP_PORT);
         close(fd);
         exit(ret);
     }
 
-    LOG_INF("Connected to %s:%d", SERVER, PORT);
+    LOG_INF("Connected to %s:%d", APP_SERVER, APP_PORT);
 
     uzmtp_dealer_init(&dealer, demo_cb_want_write, NULL);
 
