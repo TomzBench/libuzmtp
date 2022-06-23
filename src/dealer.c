@@ -270,31 +270,17 @@ int
 uzmtp_dealer_send(uzmtp_dealer_s* dealer, uzmtp_msg_s* msg)
 {
     int err;
-    uint8_t prefix[9] = { uzmtp_msg_flags(msg) };
-    const uint64_t msg_size = (uint64_t)uzmtp_msg_size(msg);
+    uint8_t flags = uzmtp_msg_flags(msg);
+    uint8_t head[9] = { flags };
+    size_t len;
+    const uint64_t mlen = (uint64_t)uzmtp_msg_size(msg);
     uzmtp_dealer__s* d = (uzmtp_dealer__s*)dealer;
 
     // TODO - if this is not a command and remote not ready, return -1
 
-    // Send header
-    if (uzmtp_msg_flags(msg) & UZMTP_MSG_LARGE) {
-        prefix[1] = msg_size >> 56;
-        prefix[2] = msg_size >> 48;
-        prefix[3] = msg_size >> 40;
-        prefix[4] = msg_size >> 32;
-        prefix[5] = msg_size >> 24;
-        prefix[6] = msg_size >> 16;
-        prefix[7] = msg_size >> 8;
-        prefix[8] = msg_size;
-        err = d->send((void*)d, prefix, sizeof(prefix));
-    }
-    else {
-        prefix[1] = uzmtp_msg_size(msg);
-        err = d->send((void*)d, prefix, 2);
-    }
-
-    // Send body
-    if (!err) err = d->send((void*)d, uzmtp_msg_data(msg), uzmtp_msg_size(msg));
+    len = uzmtp_msg_print_head(head, sizeof(head), flags, mlen);
+    err = d->send((void*)d, head, len);
+    if (!err) d->send((void*)d, uzmtp_msg_data(msg), mlen);
     if (err) {
         UERROR(d);
         err = UZMTP_ERROR_SEND;

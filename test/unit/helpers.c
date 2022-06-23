@@ -104,26 +104,9 @@ test_print_greeting(uint8_t* b)
 int
 test_print_incoming(uint8_t* dst, uint8_t* src, uint64_t sz, uint8_t flags)
 {
-    if (sz > 255) flags |= UZMTP_MSG_LARGE;
-    if (flags & UZMTP_MSG_LARGE) {
-        dst[0] = flags;
-        dst[1] = sz >> 56;
-        dst[2] = sz >> 48;
-        dst[3] = sz >> 40;
-        dst[4] = sz >> 32;
-        dst[5] = sz >> 24;
-        dst[6] = sz >> 16;
-        dst[7] = sz >> 8;
-        dst[8] = sz;
-        memcpy(&dst[9], src, sz);
-        return sz + 9;
-    }
-    else {
-        dst[0] = flags;
-        dst[1] = sz;
-        memcpy(&dst[2], src, sz);
-        return sz + 2;
-    }
+    int len = uzmtp_msg_print_head(dst, 9, flags, sz);
+    memcpy(&dst[len], src, sz);
+    return sz + len;
 }
 
 void

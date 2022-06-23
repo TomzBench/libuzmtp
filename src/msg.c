@@ -115,3 +115,34 @@ uzmtp_msg_size_set(uzmtp_msg__s* self, size_t size)
 {
     self->size = size;
 }
+
+size_t
+uzmtp_msg_print_head(
+    uint8_t* dst,
+    size_t blen,
+    uint8_t flags,
+    size_t msg_len)
+{
+    if (msg_len > 255) {
+        flags |= UZMTP_MSG_LARGE;
+        if (!(blen < 9)) {
+            dst[0] = flags;
+            dst[1] = msg_len >> 56;
+            dst[2] = msg_len >> 48;
+            dst[3] = msg_len >> 40;
+            dst[4] = msg_len >> 32;
+            dst[5] = msg_len >> 24;
+            dst[6] = msg_len >> 16;
+            dst[7] = msg_len >> 8;
+            dst[8] = msg_len;
+        }
+        return 9;
+    }
+    else {
+        if (!(blen < 2)) {
+            dst[0] = flags;
+            dst[1] = msg_len;
+        }
+        return 2;
+    }
+}
