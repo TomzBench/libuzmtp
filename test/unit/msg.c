@@ -122,6 +122,18 @@ test_zmtp_msg_set_get_clr_more(void** context_p)
     uzmtp_msg_deinit(&msg);
 }
 
+static void
+test_zmtp_msg_header_size(void** context_p)
+{
+    ((void)context_p);
+    assert_int_equal(UZMTP_MSG_HEADER_SIZE(254), 2);
+    assert_int_equal(UZMTP_MSG_HEADER_SIZE(255), 2);
+    assert_int_equal(UZMTP_MSG_HEADER_SIZE(256), 9);
+    assert_int_equal(UZMTP_DEALER_MSG_SIZE(254), 256);
+    assert_int_equal(UZMTP_DEALER_MSG_SIZE(255), 257);
+    assert_int_equal(UZMTP_DEALER_MSG_SIZE(256), 265);
+}
+
 int
 main(void)
 {
@@ -136,6 +148,7 @@ main(void)
         cmocka_unit_test(test_zmtp_msg_init_mem_large),
         cmocka_unit_test(test_zmtp_msg_init_mem_large_more),
         cmocka_unit_test(test_zmtp_msg_set_get_clr_more),
+        cmocka_unit_test(test_zmtp_msg_header_size),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

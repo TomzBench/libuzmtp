@@ -117,11 +117,7 @@ uzmtp_msg_size_set(uzmtp_msg__s* self, size_t size)
 }
 
 size_t
-uzmtp_msg_print_head(
-    uint8_t* dst,
-    size_t blen,
-    uint8_t flags,
-    int64_t msg_len)
+uzmtp_msg_print_head(uint8_t* dst, size_t blen, uint8_t flags, int64_t msg_len)
 {
     if (msg_len > 255) {
         flags |= UZMTP_MSG_LARGE;

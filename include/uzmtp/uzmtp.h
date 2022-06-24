@@ -13,6 +13,9 @@ extern "C" {
 
 #include "uzmtp/uzmtp_types.h"
 
+#define UZMTP_MSG_HEADER_SIZE(__l) (__l > 255 ? 9 : 2)
+#define UZMTP_DEALER_MSG_SIZE(__l) (__l + UZMTP_MSG_HEADER_SIZE(__l))
+
 // uzmtp_msg_...()
 void uzmtp_msg_init(uzmtp_msg_s*, uint8_t, void*, size_t);
 void uzmtp_msg_init_str(uzmtp_msg_s*, uint8_t, char*);
