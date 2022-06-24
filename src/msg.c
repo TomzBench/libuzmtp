@@ -121,7 +121,7 @@ uzmtp_msg_print_head(
     uint8_t* dst,
     size_t blen,
     uint8_t flags,
-    size_t msg_len)
+    int64_t msg_len)
 {
     if (msg_len > 255) {
         flags |= UZMTP_MSG_LARGE;

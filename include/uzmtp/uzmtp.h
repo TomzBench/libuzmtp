@@ -28,7 +28,7 @@ uint8_t* uzmtp_msg_data(uzmtp_msg_s* self);
 void uzmtp_msg_data_set(uzmtp_msg_s* self, uint8_t*);
 size_t uzmtp_msg_size(uzmtp_msg_s* self);
 void uzmtp_msg_size_set(uzmtp_msg_s* self, size_t);
-size_t uzmtp_msg_print_head(uint8_t*, size_t, uint8_t, size_t);
+size_t uzmtp_msg_print_head(uint8_t*, size_t, uint8_t, int64_t);
 
 // uzmtp_dealer_...()
 void uzmtp_dealer_init(uzmtp_dealer_s*, uzmtp_send_fn fn, void* ctx);
