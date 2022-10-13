@@ -9,10 +9,9 @@
 #define uzmtp_free free
 #endif
 
-#include <zephyr.h>
-
 #include <stdlib.h>
 #include <string.h>
+#include <zephyr/kernel.h>
 #include <zephyr/types.h>
 
 typedef z_max_align_t uzmtp_max_align;
